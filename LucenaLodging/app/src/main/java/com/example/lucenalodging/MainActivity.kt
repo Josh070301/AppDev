@@ -54,6 +54,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.navigation.NavController
 
@@ -73,24 +74,180 @@ fun WelcomeLandOwner(navController: NavHostController, userName : String){
             .fillMaxSize(),
         color = Color(color = 0xFFFDF7E4)
     ){
-        Row ( // Column for the surface
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(start = 20.dp, bottom = 40.dp, end = 20.dp)
-
+        Column (modifier = Modifier
+            .fillMaxSize()
         ){
-            Column( //column for the surface
+            Column (
                 modifier = Modifier
-                    .fillMaxSize()
-                    .clip(RoundedCornerShape(20.dp))
-                    .border(
-                        width = 1.dp,
-                        color = Color.Black,
-                        shape = RoundedCornerShape(20.dp)
-                    )
-                    .background(Color(color = 0xFFF8E4BF))
+                    .fillMaxWidth()
+                    .height(60.dp)
+                    .clip(RoundedCornerShape(bottomStart = 10.dp)) // 1 side of the border
+                    .clip(RoundedCornerShape(bottomEnd = 10.dp))
+                    .background(Color(color = 0xFFC2997C)),// color a column or row using background
+            ){
+                Row (
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    verticalAlignment = Alignment.CenterVertically
+                ){
+                    Column (
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 10.dp),
+                        horizontalAlignment = Alignment.Start
+                    ){
+                        Text(text = "Hello, Land Owner $userName")
+                    }
+                }
+            }
+            Spacer(modifier = Modifier.height(10.dp))
+            Row (
+                modifier = Modifier
+                    .height(40.dp)
+                    .fillMaxWidth()
+                    .padding(start = 20.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ){
+                Text(text = "Your Posts", fontWeight = FontWeight.Bold)
+            }
+            Row (
+                modifier = Modifier
+                    .padding(start = 20.dp, end = 20.dp),
             ) {
-                Text(text = "Check : $userName", modifier = Modifier.padding(top = 400.dp))
+                Column(
+                    modifier = Modifier
+                        .height(650.dp)
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(20.dp))
+                        .border(
+                            width = 1.dp,
+                            color = Color.Gray,
+                            shape = RoundedCornerShape(20.dp)
+                        )
+                        .background(Color(color = 0xFFF8E4BF))
+                ) {
+                    Text(text = "TEST1")
+                }
+            }
+            Spacer(modifier = Modifier.height(5.dp))//start of footer
+            FootMenu()
+        }
+    }
+}
+@Composable //footer menu to be called for every UI logged in
+fun FootMenu(){
+    Row (modifier = Modifier
+        .background(Color(color = 0xFFF8E4BF))
+        .fillMaxSize(),
+    ){
+        Row(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth()
+                .fillMaxHeight(), //responsive
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.browse_post),
+                    contentDescription = "Browse",
+                    modifier = Modifier
+                        .height(40.dp)
+                        .width(35.dp)
+                )
+                Text(text = "Browse Post", fontSize = 11.sp)
+            }
+        }
+        Row(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth()
+                .fillMaxHeight(), //responsive
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.icons8_messages_250),
+                    contentDescription = "Messages",
+                    modifier = Modifier
+                        .height(40.dp)
+                        .width(35.dp)
+                )
+                Text(text = "Messages", fontSize = 11.sp)
+            }
+        }
+        Row(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth()
+                .fillMaxHeight(), //responsive
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.icons8_create_100),
+                    contentDescription = "Create",
+                    modifier = Modifier
+                        .height(40.dp)
+                        .width(35.dp)
+                )
+                Text(text = "Post", fontSize = 11.sp)
+            }
+        }
+        Row(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth()
+                .fillMaxHeight(), //responsive
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.icons8_admin_settings_male_64),
+                    contentDescription = "User Profile",
+                    modifier = Modifier
+                        .height(40.dp)
+                        .width(35.dp)
+                )
+                Text(text = "User Profile", fontSize = 11.sp)
+            }
+        }
+        Row(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth()
+                .fillMaxHeight(), //responsive
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.icons8_settings_250),
+                    contentDescription = "Settings",
+                    modifier = Modifier
+                        .height(40.dp)
+                        .width(35.dp)
+                )
+                Text(text = "Settings", fontSize = 11.sp)
             }
         }
     }
@@ -99,5 +256,5 @@ fun WelcomeLandOwner(navController: NavHostController, userName : String){
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview() {
-    LoginAsLandOwner(navController = rememberNavController())
+    WelcomeLandOwner(navController = rememberNavController(), userName ="Joshua")
 }
