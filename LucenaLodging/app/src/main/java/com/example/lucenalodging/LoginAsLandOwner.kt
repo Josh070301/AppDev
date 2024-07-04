@@ -127,16 +127,7 @@ fun LoginAsLandOwner(navController : NavHostController){
                             modifier = Modifier
                                 .padding(start = 6.dp, top = 10.dp)
                         ){
-                            Image(painter = painterResource(id = R.drawable.icons8_back_64), //back onClick
-                                contentDescription = "Back",
-                                modifier = Modifier
-                                    .height(40.dp)
-                                    .width(40.dp)
-                                    .clickable( //added clickable modifier to navigate as back
-                                        onClick = {
-                                            navController.navigate("LoginAs")
-                                        })
-                            )
+                            BackImage(navController = navController, backTo="LoginAs")//calls from ScaffoldAndEtc
                         }
                         Row(
                             modifier = Modifier
@@ -227,7 +218,7 @@ fun LoginAsLandOwner(navController : NavHostController){
                     ){
                         Button(
                             onClick = {
-                                navController.navigate("LandOwnerBrowse?username=$userName")
+                                navController.navigate("BrowsePost?userName=$userName")
                                       },
                             modifier = Modifier
                                 .size(width = 150.dp, height = 45.dp)
