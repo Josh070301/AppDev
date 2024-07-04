@@ -14,39 +14,56 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.text.isDigitsOnly
+import androidx.navigation.NavController
+import androidx.navigation.NavHost
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 
-
 @Composable
-fun LandOwnerMessages(navController: NavHostController, userName : String){
+fun LandOwnerUpdatedPost(navController: NavHostController, userName : String){
     Surface (
         modifier = Modifier
             .fillMaxSize(),
         color = Color(color = 0xFFFDF7E4)
     ) {
-        BottomMenu(navController,userName, usage = "Messages", userType = "LandOwner")//scaffold on ScaffoldAndEtc.kt
-        Row ( // Column for the surface
+        BottomMenu(navController, userName, usage = "Browse Post", userType = "LandOwner")
+        Row( // Column for the surface
             modifier = Modifier
                 .fillMaxSize()
-                .padding(start = 5.dp, bottom = 125.dp, end = 5.dp, top = 70.dp) //padding in top and bottom bar
+                .padding(
+                    start = 5.dp,
+                    bottom = 125.dp,
+                    end = 5.dp,
+                    top = 70.dp
+                ) //padding in top and bottom bar
 
         ) {
             Column( //column for the surface
@@ -64,50 +81,31 @@ fun LandOwnerMessages(navController: NavHostController, userName : String){
                     modifier = Modifier
                         .fillMaxSize()
                 ) {
-                    Row (
+                    Row(
                         modifier = Modifier
-                            .height(70.dp),
+                            .fillMaxHeight(),
                         verticalAlignment = Alignment.CenterVertically
-                    ){
+                    ) {
                         Column (
                             modifier = Modifier
-                                .padding(start = 20.dp, end = 20.dp)
                                 .fillMaxWidth(),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ){
-                            Text(
-                                text = "Messages",
-                                fontSize = 25.sp,
-                                fontWeight = FontWeight.Bold,
-                                modifier = Modifier
-                                    .padding(top = 10.dp),
+                            Text(text = "Post Successfully Updated",
+                                fontSize = 40.sp,
+                                textAlign = TextAlign.Center
                             )
-                            MainSpacer()// at ScaffoldAndEtc.kt
+                            OutlinedButton(
+                                onClick = {
+                                    navController.navigate("LandOwnerBrowsePost?userName=$userName")
+                                },//soon navigates
+                                colors = ButtonDefaults.buttonColors(containerColor = Color(color = 0xFFF2B398)),
+                                modifier = Modifier
+                                    .width(150.dp)
+                            ) {
+                                Text(text = "Check my Posts", color = Color.Black)
+                            }
                         }
-                    }
-                    Column (
-                        modifier = Modifier
-                            .height(70.dp)
-                            .fillMaxWidth(),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ){
-                        Row (
-                            modifier = Modifier
-                                .fillMaxHeight(),
-                            verticalAlignment = Alignment.CenterVertically
-                        ){
-                            SearchBar(navController, userName, userType = "LandOwner") //in ScaffoldAndEtc.kt
-                        }
-                    }
-                    Column (
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .verticalScroll(rememberScrollState())
-                    ){
-                        repeat(10){
-                            messagesContent(navController, userName)//in ScaffoldAndEtc.kt
-                        }
-
                     }
                 }
             }
@@ -115,3 +113,9 @@ fun LandOwnerMessages(navController: NavHostController, userName : String){
     }
 }
 
+
+@Preview
+@Composable
+fun SimpleComposablePreview() {
+    LandOwnerUpdatedPost(navController = rememberNavController(), userName = "Joshua")
+}

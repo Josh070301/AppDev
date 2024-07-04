@@ -22,7 +22,7 @@ fun AppNavigator(){
         composable(route = "LoginAsLandOwner"){
             LoginAsLandOwner(navController)
         }
-        composable(route = "BrowsePost?userName={userName}",
+        composable(route = "LandOwnerBrowsePost?userName={userName}",
             arguments = listOf(
                 navArgument(
                     name = "userName"
@@ -35,7 +35,7 @@ fun AppNavigator(){
                 WelcomeLandOwner(navController = navController,
                     userName = backstackEntry.arguments?.getString("userName") ?:"")//returns default string if this variable returned null
         }
-        composable(route = "Messages?userName={userName}",
+        composable(route = "LandOwnerMessages?userName={userName}",
             arguments = listOf(
                 navArgument(
                     name = "userName"
@@ -48,7 +48,7 @@ fun AppNavigator(){
                     LandOwnerMessages(navController = navController,
                        userName = backstackEntry.arguments?.getString("userName") ?:"")//returns default string if this variable returned null
         }
-        composable(route = "Post?userName={userName}",
+        composable(route = "LandOwnerPost?userName={userName}",
             arguments = listOf(
                 navArgument(
                     name = "userName"
@@ -61,7 +61,7 @@ fun AppNavigator(){
             LandOwnerCreate(navController = navController,
                 userName = backstackEntry.arguments?.getString("userName") ?:"")//returns default string if this variable returned null
         }
-        composable(route = "UserProfile?userName={userName}",
+        composable(route = "LandOwnerUserProfile?userName={userName}",
             arguments = listOf(
                 navArgument(
                     name = "userName"
@@ -74,7 +74,7 @@ fun AppNavigator(){
             LandOwnerProfile(navController = navController,
                 userName = backstackEntry.arguments?.getString("userName") ?:"")//returns default string if this variable returned null
         }
-        composable(route = "Settings?userName={userName}",
+        composable(route = "LandOwnerSettings?userName={userName}",
             arguments = listOf(
                 navArgument(
                     name = "userName"
@@ -85,6 +85,58 @@ fun AppNavigator(){
         ){
                 backstackEntry ->
             LandOwnerSettings(navController = navController,
+                userName = backstackEntry.arguments?.getString("userName") ?:"")//returns default string if this variable returned null
+        }
+        composable(route = "LandOwnerEditPost?userName={userName}",
+            arguments = listOf(
+                navArgument(
+                    name = "userName"
+                ){
+                    type = NavType.StringType
+                }
+            )
+        ){
+                backstackEntry ->
+            LandOwnerEditPost(navController = navController,
+                userName = backstackEntry.arguments?.getString("userName") ?:"")//returns default string if this variable returned null
+        }
+        composable(route = "LandOwnerUpdate?userName={userName}",
+            arguments = listOf(
+                navArgument(
+                    name = "userName"
+                ){
+                    type = NavType.StringType
+                }
+            )
+        ){
+                backstackEntry ->
+            LandOwnerUpdate(navController = navController,
+                userName = backstackEntry.arguments?.getString("userName") ?:"")//returns default string if this variable returned null
+        }
+        composable(route = "LandOwnerUpdatedPost?userName={userName}",
+            arguments = listOf(
+                navArgument(
+                    name = "userName"
+                ){
+                    type = NavType.StringType
+                }
+            )
+        ){
+                backstackEntry ->
+            LandOwnerUpdatedPost(navController = navController,
+                userName = backstackEntry.arguments?.getString("userName") ?:"")//returns default string if this variable returned null
+        }
+        composable(route = "LandOwnerDelete?userName={userName}",
+            arguments = listOf(
+                navArgument(
+                    name = "userName"
+                ){
+                    type = NavType.StringType
+                }
+            )
+        ){
+                backstackEntry ->
+            LandOwnerDelete(navController = navController,
                 userName = backstackEntry.arguments?.getString("userName") ?:"")//returns default string if this variable returned null
         }
     }

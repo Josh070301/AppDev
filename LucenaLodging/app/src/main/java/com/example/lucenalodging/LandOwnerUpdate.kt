@@ -6,7 +6,6 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -16,82 +15,93 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.text.isDigitsOnly
-import kotlinx.coroutines.selects.select
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 
 @Composable
-fun LandOwnerCreate(navController: NavHostController, userName : String){
+fun LandOwnerUpdate(navController: NavHostController, userName : String){
     var selectRoomTitle by remember {
-        mutableStateOf("")
+        mutableStateOf("Room For Rent")
     }
     var location by remember {
-        mutableStateOf("")
+        mutableStateOf("Purok Happy Valley Enverga Compound Brgy. Ibabang Dupay Lucena City")
     }
     var curfew by remember {
-        mutableStateOf("")
+        mutableStateOf("2:00PM")
     }
     var roomIncludes by remember {
-        mutableStateOf("")
+        mutableStateOf("Free : Water, Wi-Fi, Bed, Foam, 24 Hours CCTV Footage, 24 Hours Water Supply, Locked Gates, Open Parking Available, Own Comfort Room")
     }
     var locationMaxChar = 180
     var curfewMaxChar = 180
     var roomIncludesMaxChar = 180
     var peopleCount by remember {
-        mutableStateOf(1)
+        mutableStateOf(2)
     }
     var oneMonthAdvance by remember {
-        mutableStateOf(false)
+        mutableStateOf(true)
     }
     var oneMonthDeposit by remember {
-        mutableStateOf(false)
+        mutableStateOf(true)
     }
     var anyID by remember {
         mutableStateOf(false)
     }
     var available by remember {
-        mutableStateOf(false)
+        mutableStateOf(true)
     }
     var price by remember {
-        mutableStateOf("")
+        mutableStateOf("3500")
+    }
+    var deleteDialog by remember {
+        mutableStateOf(false)
     }
     Surface (
         modifier = Modifier
             .fillMaxSize(),
         color = Color(color = 0xFFFDF7E4)
     ) {
-        BottomMenu(navController,userName, usage = "Post", userType = "LandOwner")//scaffold on ScaffoldAndEtc.kt
-        Row ( // Column for the surface
+        BottomMenu(navController, userName, usage = "Browse Post", userType = "LandOwner")
+        Row( // Column for the surface
             modifier = Modifier
                 .fillMaxSize()
-                .padding(start = 5.dp, bottom = 125.dp, end = 5.dp, top = 70.dp) //padding in top and bottom bar
+                .padding(
+                    start = 5.dp,
+                    bottom = 125.dp,
+                    end = 5.dp,
+                    top = 70.dp
+                ) //padding in top and bottom bar
 
         ) {
             Column( //column for the surface
@@ -111,21 +121,25 @@ fun LandOwnerCreate(navController: NavHostController, userName : String){
                 ) {
                     Row(
                         modifier = Modifier
-                            .height(70.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                            .height(70.dp)
+                            .fillMaxWidth()
+                            .padding(start = 10.dp, end = 20.dp, top = 20.dp),
                     ) {
+                        Row {
+                            BackImage(
+                                navController = navController,
+                                backTo = "LandOwnerEditPost?userName=$userName"
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(10.dp))
                         Column(
                             modifier = Modifier
-                                .padding(start = 20.dp, end = 20.dp)
-                                .fillMaxWidth(),
-                            horizontalAlignment = Alignment.CenterHorizontally
+                                .padding(top = 5.dp)
                         ) {
                             Text(
-                                text = "Create",
+                                text = "Update",
                                 fontSize = 25.sp,
                                 fontWeight = FontWeight.Bold,
-                                modifier = Modifier
-                                    .padding(top = 10.dp),
                             )
                             MainSpacer()
                         }
@@ -152,7 +166,7 @@ fun LandOwnerCreate(navController: NavHostController, userName : String){
                                 modifier = Modifier
                                     .fillMaxWidth(),
 
-                            ){
+                                ){
                                 Row (
                                     verticalAlignment = Alignment.Bottom
                                 ){
@@ -465,13 +479,39 @@ fun LandOwnerCreate(navController: NavHostController, userName : String){
                                     .height(60.dp),
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ){
-                                OutlinedButton(
-                                    onClick = { /*TODO*/ },//soon navigates
-                                    colors = ButtonDefaults.buttonColors(containerColor = Color(color = 0xFFF2B398)),
-                                    modifier = Modifier
-                                        .width(200.dp)
-                                ) {
-                                    Text(text = "Create", color = Color.Black)
+                                Row (
+                                ){
+                                    OutlinedButton(
+                                        onClick = {
+                                                  navController.navigate("LandOwnerUpdatedPost?userName=$userName")
+                                        },//soon navigates
+                                        colors = ButtonDefaults.buttonColors(containerColor = Color(color = 0xFFF2B398)),
+                                        modifier = Modifier
+                                            .width(150.dp)
+                                    ) {
+                                        Text(text = "Update", color = Color.Black)
+                                    }
+                                    Spacer(modifier = Modifier.width(10.dp))
+                                    OutlinedButton(
+                                        onClick = {
+                                                  deleteDialog = true
+                                        },//soon navigates
+                                        colors = ButtonDefaults.buttonColors(containerColor = Color(color = 0xFFF2B398)),
+                                        modifier = Modifier
+                                            .width(150.dp)
+                                    ) {
+                                        Text(text = "Delete", color = Color.Black)
+                                    }
+                                    if (deleteDialog){
+                                        AlertDialogDelete(
+                                            onDismissRequest = { deleteDialog = false },
+                                            onConfirmation = { deleteDialog = false },
+                                            dialogTitle = "Confirm Delete Action?",
+                                            dialogText = "The data will be permanently Deleted",
+                                            navController = navController,
+                                            userName = userName,
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -480,4 +520,45 @@ fun LandOwnerCreate(navController: NavHostController, userName : String){
             }
         }
     }
+}
+
+@Composable
+fun AlertDialogDelete(
+    onDismissRequest: () -> Unit,
+    onConfirmation: () -> Unit,
+    dialogTitle: String,
+    dialogText: String,
+    navController: NavHostController,
+    userName: String
+) {
+    AlertDialog(
+        title = {
+            Text(text = dialogTitle)
+        },
+        text = {
+            Text(text = dialogText)
+        },
+        onDismissRequest = {
+            onDismissRequest()
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    onDismissRequest()
+                    navController.navigate("LandOwnerDelete?userName=$userName")
+                }
+            ) {
+                Text("Delete")
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = {
+                    onDismissRequest()
+                }
+            ) {
+                Text("Cancel")
+            }
+        }
+    )
 }

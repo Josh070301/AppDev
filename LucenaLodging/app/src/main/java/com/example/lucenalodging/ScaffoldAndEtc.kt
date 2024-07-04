@@ -53,7 +53,7 @@ fun BackImage(navController: NavHostController, backTo:String){
     )
 }
 @Composable
-fun SearchBar(SearchBy : String){
+fun SearchBar(navController: NavHostController, userName: String, userType: String){
     var searchInput by remember {
         mutableStateOf("")
     }
@@ -70,13 +70,27 @@ fun SearchBar(SearchBy : String){
         onValueChange = {searchInput = it},
         placeholder = {Text(text = "Search Names", fontSize = 14.sp)},
         leadingIcon = { Image(painter = painterResource(id = R.drawable.icons8_search_64),
-            contentDescription ="Search"
+            contentDescription ="Search",
+            modifier = Modifier
+                .height(30.dp)
+                .width(30.dp)
         ) },
     )
 }
 
 @Composable
-fun messagesContent(){ //soon uses parameters for api calls
+fun MainSpacer(){
+    Spacer(
+        modifier = Modifier
+            .padding(top = 2.dp)
+            .height(1.dp)
+            .fillMaxWidth()
+            .border(1.dp, Color.Gray)
+    )
+}
+
+@Composable
+fun messagesContent(navController: NavHostController, userName : String){ //soon uses parameters for api calls
     Column(
         modifier = Modifier
             .height(70.dp)
@@ -120,118 +134,122 @@ fun messagesContent(){ //soon uses parameters for api calls
 }
 
 @Composable
-fun userContent(){
-    Spacer(modifier = Modifier.height(10.dp))
-    Column(
-        modifier = Modifier
-            .height(400.dp)
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(10.dp))
-            .padding(start = 10.dp, end = 10.dp)
-            .background(color = Color(color = 0xFFFFE5B4))
-            .border(
-                1.dp,
-                Color.Gray,
-                shape = RoundedCornerShape(10.dp)
-            )
-    ) {
-        Row (
-            modifier = Modifier
-                .height(60.dp)
-                .padding(top = 10.dp, start = 10.dp)
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ){
-            Column (
-                modifier = Modifier
-                    .height(50.dp)
-                    .width(50.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ){
-                Image(painter = painterResource(id = R.drawable.icons8_profile_picture_90),
-                    contentDescription = "User profile mini image" ,
-                    modifier = Modifier
-                        .fillMaxSize()
-                )
-            }
-            Spacer(modifier = Modifier.width(5.dp))
-            Text(text = "Joshua Laude",
-                fontStyle = FontStyle.Italic,
-                fontWeight = FontWeight.Bold
-            )
-        }
+fun userContent(navController: NavHostController,userName : String, userType : String){
+    if(userType == "LandOwner"){
         Spacer(modifier = Modifier.height(10.dp))
-        Column ( // images needs parameter soon
+        Column(
             modifier = Modifier
+                .height(400.dp)
                 .fillMaxWidth()
-                .padding(start = 10.dp, end = 10.dp)
-                .height(150.dp)
                 .clip(RoundedCornerShape(10.dp))
-                .background(Color(color = 0xFFEBE7E1))
-                .border(1.dp, Color.Gray, shape = RoundedCornerShape(10.dp)),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ){
+                .padding(start = 10.dp, end = 10.dp)
+                .background(color = Color(color = 0xFFFFE5B4))
+                .border(
+                    1.dp,
+                    Color.Gray,
+                    shape = RoundedCornerShape(10.dp)
+                )
+        ) {
             Row (
                 modifier = Modifier
-                    .fillMaxHeight(),
+                    .height(60.dp)
+                    .padding(top = 10.dp, start = 10.dp)
+                    .fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ){
-                Text(text = "Images")
-            }
-        }
-        Spacer(modifier = Modifier.height(10.dp))
-        Row (
-            modifier = Modifier
-                .height(80.dp)
-                .fillMaxWidth()
-                .padding(start = 10.dp, end = 10.dp)
-        ){
-            Row (
-                modifier = Modifier
-                    .weight(2f)
-                    .fillMaxHeight(),
-                verticalAlignment = Alignment.Top
-            ){
-                Column(
+                Column (
                     modifier = Modifier
-                ) {
-                    Text(text = "Location", fontWeight = FontWeight.Bold)
-                    Text(text = "Purok Happy Valley Enverga Compound Brgy. Ibabang Dupay Lucena City")//soon description input
+                        .height(50.dp)
+                        .width(50.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ){
+                    Image(painter = painterResource(id = R.drawable.icons8_profile_picture_90),
+                        contentDescription = "User profile mini image" ,
+                        modifier = Modifier
+                            .fillMaxSize()
+                    )
+                }
+                Spacer(modifier = Modifier.width(5.dp))
+                Text(text = "Joshua Laude",
+                    fontStyle = FontStyle.Italic,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+            Spacer(modifier = Modifier.height(10.dp))
+            Column ( // images needs parameter soon
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 10.dp, end = 10.dp)
+                    .height(150.dp)
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(Color(color = 0xFFEBE7E1))
+                    .border(1.dp, Color.Gray, shape = RoundedCornerShape(10.dp)),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ){
+                Row (
+                    modifier = Modifier
+                        .fillMaxHeight(),
+                    verticalAlignment = Alignment.CenterVertically
+                ){
+                    Text(text = "Images")
                 }
             }
-            Spacer(modifier = Modifier.width(10.dp))
+            Spacer(modifier = Modifier.height(10.dp))
             Row (
                 modifier = Modifier
-                    .weight(1f)
-                    .fillMaxHeight(),
-                verticalAlignment = Alignment.Top
+                    .height(80.dp)
+                    .fillMaxWidth()
+                    .padding(start = 10.dp, end = 10.dp)
             ){
-                Column(
-                    horizontalAlignment = Alignment.End
-                ) {
-                    Text(text = "Room for Rent", fontWeight = FontWeight.Bold) //soon to be input parameter from arguments
-                    Text(text = "3500PHP Monthly", fontWeight = FontWeight.Bold)
+                Row (
+                    modifier = Modifier
+                        .weight(2f)
+                        .fillMaxHeight(),
+                    verticalAlignment = Alignment.Top
+                ){
+                    Column(
+                        modifier = Modifier
+                    ) {
+                        Text(text = "Location", fontWeight = FontWeight.Bold)
+                        Text(text = "Purok Happy Valley Enverga Compound Brgy. Ibabang Dupay Lucena City")//soon description input
+                    }
+                }
+                Spacer(modifier = Modifier.width(10.dp))
+                Row (
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight(),
+                    verticalAlignment = Alignment.Top
+                ){
+                    Column(
+                        horizontalAlignment = Alignment.End
+                    ) {
+                        Text(text = "Room for Rent", fontWeight = FontWeight.Bold) //soon to be input parameter from arguments
+                        Text(text = "3500PHP Monthly", fontWeight = FontWeight.Bold)
+                    }
                 }
             }
-        }
-        Column (
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(60.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ){
-            OutlinedButton(
-                onClick = { /*TODO*/ },//soon navigates
-                colors = ButtonDefaults.buttonColors(containerColor = Color(color = 0xFFF2B398))
-            ) {
-                Text(text = "More Information", color = Color.Black)
+            Column (
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(60.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ){
+                OutlinedButton(
+                    onClick = {
+                              navController.navigate("LandOwnerEditPost?userName=$userName")
+                    },//soon navigates
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(color = 0xFFF2B398))
+                ) {
+                    Text(text = "More Information", color = Color.Black)
+                }
             }
         }
     }
 }
 @Composable //scaffold menu bottom and top bar
-fun BottomMenu(navController: NavHostController,userName : String, usage:String){
-    if (usage == "Browse Post"){
+fun BottomMenu(navController: NavHostController,userName : String, usage:String, userType: String){
+    if (usage == "Browse Post" && userType == "LandOwner"){
         Scaffold(
             topBar = {
                 Column (modifier = Modifier
@@ -280,7 +298,7 @@ fun BottomMenu(navController: NavHostController,userName : String, usage:String)
                                 .fillMaxWidth()
                                 .clickable(
                                     onClick = {
-                                        navController.navigate("BrowsePost?userName=$userName")
+                                        navController.navigate("LandOwnerBrowsePost?userName=$userName")
                                     }
                                 ),
                             horizontalAlignment = Alignment.CenterHorizontally
@@ -307,7 +325,7 @@ fun BottomMenu(navController: NavHostController,userName : String, usage:String)
                                 .fillMaxWidth()
                                 .clickable(
                                     onClick = {
-                                        navController.navigate("Messages?userName=$userName")
+                                        navController.navigate("LandOwnerMessages?userName=$userName")
                                     }
                                 ),
                             horizontalAlignment = Alignment.CenterHorizontally
@@ -334,7 +352,7 @@ fun BottomMenu(navController: NavHostController,userName : String, usage:String)
                                 .fillMaxWidth()
                                 .clickable(
                                     onClick = {
-                                        navController.navigate("Post?userName=$userName")
+                                        navController.navigate("LandOwnerPost?userName=$userName")
                                     }
                                 ),
                             horizontalAlignment = Alignment.CenterHorizontally
@@ -361,7 +379,7 @@ fun BottomMenu(navController: NavHostController,userName : String, usage:String)
                                 .fillMaxWidth()
                                 .clickable(
                                     onClick = {
-                                        navController.navigate("UserProfile?userName=$userName")
+                                        navController.navigate("LandOwnerUserProfile?userName=$userName")
                                     }
                                 ),
                             horizontalAlignment = Alignment.CenterHorizontally
@@ -388,7 +406,191 @@ fun BottomMenu(navController: NavHostController,userName : String, usage:String)
                                 .fillMaxWidth()
                                 .clickable(
                                     onClick = {
-                                        navController.navigate("Settings?userName=$userName")
+                                        navController.navigate("LandOwnerSettings?userName=$userName")
+                                    }
+                                ),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.icons8_settings_250),
+                                contentDescription = "Settings",
+                                modifier = Modifier
+                                    .height(40.dp)
+                                    .width(35.dp)
+                            )
+                            Text(text = "Settings", fontSize = 11.sp)
+                        }
+                    }
+                }
+            }
+        ) { innerPadding ->
+            Column(
+                modifier = Modifier
+                    .padding(innerPadding),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+            ) {
+
+            }
+        }
+    } //conditions because Tenant scaffold will be here too
+    else if (usage == "Messages" && userType == "LandOwner"){
+        Scaffold(
+            topBar = {
+                Column (modifier = Modifier
+                    .fillMaxSize()
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(60.dp)
+                            .clip(RoundedCornerShape(bottomStart = 10.dp)) // 1 side of the border
+                            .clip(RoundedCornerShape(bottomEnd = 10.dp))
+                            .background(Color(color = 0xFFC2997C)), // color a column or row using background
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxSize(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(start = 10.dp),
+                                horizontalAlignment = Alignment.Start
+                            ) {
+                                Text(text = "Hello, Land Owner $userName")
+                            }
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(10.dp))
+                }
+            },
+            bottomBar = {
+                BottomAppBar(
+                    containerColor = Color(color = 0xFFF8E4BF)
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth()
+                            .fillMaxHeight(), //responsive
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable(
+                                    onClick = {
+                                        navController.navigate("LandOwnerBrowsePost?userName=$userName")
+                                    }
+                                ),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.browse_post),
+                                contentDescription = "Browse",
+                                modifier = Modifier
+                                    .height(40.dp)
+                                    .width(35.dp)
+                            )
+                            Text(text = "Browse Post", fontSize = 11.sp)
+                        }
+                    }
+                    Row(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth()
+                            .background(color = Color(color = 0xFFE7CEBC))
+                            .fillMaxHeight(), //responsive
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable(
+                                    onClick = {
+                                        navController.navigate("LandOwnerMessages?userName=$userName")
+                                    }
+                                ),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.icons8_messages_250),
+                                contentDescription = "Messages",
+                                modifier = Modifier
+                                    .height(40.dp)
+                                    .width(35.dp)
+                            )
+                            Text(text = "Messages", fontSize = 11.sp)
+                        }
+                    }
+                    Row(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth()
+                            .fillMaxHeight(), //responsive
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable(
+                                    onClick = {
+                                        navController.navigate("LandOwnerPost?userName=$userName")
+                                    }
+                                ),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.icons8_create_100),
+                                contentDescription = "Create",
+                                modifier = Modifier
+                                    .height(40.dp)
+                                    .width(35.dp)
+                            )
+                            Text(text = "Post", fontSize = 11.sp)
+                        }
+                    }
+                    Row(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth()
+                            .fillMaxHeight(), //responsive
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable(
+                                    onClick = {
+                                        navController.navigate("LandOwnerUserProfile?userName=$userName")
+                                    }
+                                ),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.icons8_admin_settings_male_64),
+                                contentDescription = "User Profile",
+                                modifier = Modifier
+                                    .height(40.dp)
+                                    .width(35.dp)
+                            )
+                            Text(text = "User Profile", fontSize = 11.sp)
+                        }
+                    }
+                    Row(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth()
+                            .fillMaxHeight(), //responsive
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable(
+                                    onClick = {
+                                        navController.navigate("LandOwnerSettings?userName=$userName")
                                     }
                                 ),
                             horizontalAlignment = Alignment.CenterHorizontally
@@ -415,7 +617,7 @@ fun BottomMenu(navController: NavHostController,userName : String, usage:String)
             }
         }
     }
-    else if (usage == "Messages"){
+    else if (usage == "Post" && userType == "LandOwner"){
         Scaffold(
             topBar = {
                 Column (modifier = Modifier
@@ -463,7 +665,7 @@ fun BottomMenu(navController: NavHostController,userName : String, usage:String)
                                 .fillMaxWidth()
                                 .clickable(
                                     onClick = {
-                                        navController.navigate("BrowsePost?userName=$userName")
+                                        navController.navigate("LandOwnerBrowsePost?userName=$userName")
                                     }
                                 ),
                             horizontalAlignment = Alignment.CenterHorizontally
@@ -482,7 +684,6 @@ fun BottomMenu(navController: NavHostController,userName : String, usage:String)
                         modifier = Modifier
                             .weight(1f)
                             .fillMaxWidth()
-                            .background(color = Color(color = 0xFFE7CEBC))
                             .fillMaxHeight(), //responsive
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -491,7 +692,7 @@ fun BottomMenu(navController: NavHostController,userName : String, usage:String)
                                 .fillMaxWidth()
                                 .clickable(
                                     onClick = {
-                                        navController.navigate("Messages?userName=$userName")
+                                        navController.navigate("LandOwnerMessages?userName=$userName")
                                     }
                                 ),
                             horizontalAlignment = Alignment.CenterHorizontally
@@ -510,6 +711,7 @@ fun BottomMenu(navController: NavHostController,userName : String, usage:String)
                         modifier = Modifier
                             .weight(1f)
                             .fillMaxWidth()
+                            .background(color = Color(color = 0xFFE7CEBC))
                             .fillMaxHeight(), //responsive
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -518,7 +720,7 @@ fun BottomMenu(navController: NavHostController,userName : String, usage:String)
                                 .fillMaxWidth()
                                 .clickable(
                                     onClick = {
-                                        navController.navigate("Post?userName=$userName")
+                                        navController.navigate("LandOwnerPost?userName=$userName")
                                     }
                                 ),
                             horizontalAlignment = Alignment.CenterHorizontally
@@ -545,7 +747,7 @@ fun BottomMenu(navController: NavHostController,userName : String, usage:String)
                                 .fillMaxWidth()
                                 .clickable(
                                     onClick = {
-                                        navController.navigate("UserProfile?userName=$userName")
+                                        navController.navigate("LandOwnerUserProfile?userName=$userName")
                                     }
                                 ),
                             horizontalAlignment = Alignment.CenterHorizontally
@@ -572,7 +774,7 @@ fun BottomMenu(navController: NavHostController,userName : String, usage:String)
                                 .fillMaxWidth()
                                 .clickable(
                                     onClick = {
-                                        navController.navigate("Settings?userName=$userName")
+                                        navController.navigate("LandOwnerSettings?userName=$userName")
                                     }
                                 ),
                             horizontalAlignment = Alignment.CenterHorizontally
@@ -599,7 +801,7 @@ fun BottomMenu(navController: NavHostController,userName : String, usage:String)
             }
         }
     }
-    else if (usage == "Post"){
+    else if (usage == "User Profile" && userType == "LandOwner"){
         Scaffold(
             topBar = {
                 Column (modifier = Modifier
@@ -647,7 +849,7 @@ fun BottomMenu(navController: NavHostController,userName : String, usage:String)
                                 .fillMaxWidth()
                                 .clickable(
                                     onClick = {
-                                        navController.navigate("BrowsePost?userName=$userName")
+                                        navController.navigate("LandOwnerBrowsePost?userName=$userName")
                                     }
                                 ),
                             horizontalAlignment = Alignment.CenterHorizontally
@@ -674,7 +876,7 @@ fun BottomMenu(navController: NavHostController,userName : String, usage:String)
                                 .fillMaxWidth()
                                 .clickable(
                                     onClick = {
-                                        navController.navigate("Messages?userName=$userName")
+                                        navController.navigate("LandOwnerMessages?userName=$userName")
                                     }
                                 ),
                             horizontalAlignment = Alignment.CenterHorizontally
@@ -693,7 +895,6 @@ fun BottomMenu(navController: NavHostController,userName : String, usage:String)
                         modifier = Modifier
                             .weight(1f)
                             .fillMaxWidth()
-                            .background(color = Color(color = 0xFFE7CEBC))
                             .fillMaxHeight(), //responsive
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -702,7 +903,7 @@ fun BottomMenu(navController: NavHostController,userName : String, usage:String)
                                 .fillMaxWidth()
                                 .clickable(
                                     onClick = {
-                                        navController.navigate("Post?userName=$userName")
+                                        navController.navigate("LandOwnerPost?userName=$userName")
                                     }
                                 ),
                             horizontalAlignment = Alignment.CenterHorizontally
@@ -721,6 +922,7 @@ fun BottomMenu(navController: NavHostController,userName : String, usage:String)
                         modifier = Modifier
                             .weight(1f)
                             .fillMaxWidth()
+                            .background(color = Color(color = 0xFFE7CEBC))
                             .fillMaxHeight(), //responsive
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -729,7 +931,7 @@ fun BottomMenu(navController: NavHostController,userName : String, usage:String)
                                 .fillMaxWidth()
                                 .clickable(
                                     onClick = {
-                                        navController.navigate("UserProfile?userName=$userName")
+                                        navController.navigate("LandOwnerUserProfile?userName=$userName")
                                     }
                                 ),
                             horizontalAlignment = Alignment.CenterHorizontally
@@ -756,7 +958,7 @@ fun BottomMenu(navController: NavHostController,userName : String, usage:String)
                                 .fillMaxWidth()
                                 .clickable(
                                     onClick = {
-                                        navController.navigate("Settings?userName=$userName")
+                                        navController.navigate("LandOwnerSettings?userName=$userName")
                                     }
                                 ),
                             horizontalAlignment = Alignment.CenterHorizontally
@@ -783,7 +985,7 @@ fun BottomMenu(navController: NavHostController,userName : String, usage:String)
             }
         }
     }
-    else if (usage == "User Profile"){
+    else if (usage == "Settings" && userType == "LandOwner"){
         Scaffold(
             topBar = {
                 Column (modifier = Modifier
@@ -831,7 +1033,7 @@ fun BottomMenu(navController: NavHostController,userName : String, usage:String)
                                 .fillMaxWidth()
                                 .clickable(
                                     onClick = {
-                                        navController.navigate("BrowsePost?userName=$userName")
+                                        navController.navigate("LandOwnerBrowsePost?userName=$userName")
                                     }
                                 ),
                             horizontalAlignment = Alignment.CenterHorizontally
@@ -858,7 +1060,7 @@ fun BottomMenu(navController: NavHostController,userName : String, usage:String)
                                 .fillMaxWidth()
                                 .clickable(
                                     onClick = {
-                                        navController.navigate("Messages?userName=$userName")
+                                        navController.navigate("LandOwnerMessages?userName=$userName")
                                     }
                                 ),
                             horizontalAlignment = Alignment.CenterHorizontally
@@ -885,191 +1087,7 @@ fun BottomMenu(navController: NavHostController,userName : String, usage:String)
                                 .fillMaxWidth()
                                 .clickable(
                                     onClick = {
-                                        navController.navigate("Post?userName=$userName")
-                                    }
-                                ),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Image(
-                                painter = painterResource(id = R.drawable.icons8_create_100),
-                                contentDescription = "Create",
-                                modifier = Modifier
-                                    .height(40.dp)
-                                    .width(35.dp)
-                            )
-                            Text(text = "Post", fontSize = 11.sp)
-                        }
-                    }
-                    Row(
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxWidth()
-                            .background(color = Color(color = 0xFFE7CEBC))
-                            .fillMaxHeight(), //responsive
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable(
-                                    onClick = {
-                                        navController.navigate("UserProfile?userName=$userName")
-                                    }
-                                ),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Image(
-                                painter = painterResource(id = R.drawable.icons8_admin_settings_male_64),
-                                contentDescription = "User Profile",
-                                modifier = Modifier
-                                    .height(40.dp)
-                                    .width(35.dp)
-                            )
-                            Text(text = "User Profile", fontSize = 11.sp)
-                        }
-                    }
-                    Row(
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxWidth()
-                            .fillMaxHeight(), //responsive
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable(
-                                    onClick = {
-                                        navController.navigate("Settings?userName=$userName")
-                                    }
-                                ),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Image(
-                                painter = painterResource(id = R.drawable.icons8_settings_250),
-                                contentDescription = "Settings",
-                                modifier = Modifier
-                                    .height(40.dp)
-                                    .width(35.dp)
-                            )
-                            Text(text = "Settings", fontSize = 11.sp)
-                        }
-                    }
-                }
-            }
-        ) { innerPadding ->
-            Column(
-                modifier = Modifier
-                    .padding(innerPadding),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-            ) {
-
-            }
-        }
-    }
-    else if (usage == "Settings"){
-        Scaffold(
-            topBar = {
-                Column (modifier = Modifier
-                    .fillMaxSize()
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(60.dp)
-                            .clip(RoundedCornerShape(bottomStart = 10.dp)) // 1 side of the border
-                            .clip(RoundedCornerShape(bottomEnd = 10.dp))
-                            .background(Color(color = 0xFFC2997C)), // color a column or row using background
-                    ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxSize(),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(start = 10.dp),
-                                horizontalAlignment = Alignment.Start
-                            ) {
-                                Text(text = "Hello, Land Owner $userName")
-                            }
-                        }
-                    }
-                    Spacer(modifier = Modifier.height(10.dp))
-                }
-            },
-            bottomBar = {
-                BottomAppBar(
-                    containerColor = Color(color = 0xFFF8E4BF)
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxWidth()
-                            .fillMaxHeight(), //responsive
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable(
-                                    onClick = {
-                                        navController.navigate("BrowsePost?userName=$userName")
-                                    }
-                                ),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Image(
-                                painter = painterResource(id = R.drawable.browse_post),
-                                contentDescription = "Browse",
-                                modifier = Modifier
-                                    .height(40.dp)
-                                    .width(35.dp)
-                            )
-                            Text(text = "Browse Post", fontSize = 11.sp)
-                        }
-                    }
-                    Row(
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxWidth()
-                            .fillMaxHeight(), //responsive
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable(
-                                    onClick = {
-                                        navController.navigate("Messages?userName=$userName")
-                                    }
-                                ),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Image(
-                                painter = painterResource(id = R.drawable.icons8_messages_250),
-                                contentDescription = "Messages",
-                                modifier = Modifier
-                                    .height(40.dp)
-                                    .width(35.dp)
-                            )
-                            Text(text = "Messages", fontSize = 11.sp)
-                        }
-                    }
-                    Row(
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxWidth()
-                            .fillMaxHeight(), //responsive
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable(
-                                    onClick = {
-                                        navController.navigate("Post?userName=$userName")
+                                        navController.navigate("LandOwnerPost?userName=$userName")
                                     }
                                 ),
                             horizontalAlignment = Alignment.CenterHorizontally
@@ -1096,7 +1114,7 @@ fun BottomMenu(navController: NavHostController,userName : String, usage:String)
                                 .fillMaxWidth()
                                 .clickable(
                                     onClick = {
-                                        navController.navigate("UserProfile?userName=$userName")
+                                        navController.navigate("LandOwnerUserProfile?userName=$userName")
                                     }
                                 ),
                             horizontalAlignment = Alignment.CenterHorizontally
@@ -1124,7 +1142,7 @@ fun BottomMenu(navController: NavHostController,userName : String, usage:String)
                                 .fillMaxWidth()
                                 .clickable(
                                     onClick = {
-                                        navController.navigate("Settings?userName=$userName")
+                                        navController.navigate("LandOwnerSettings?userName=$userName")
                                     }
                                 ),
                             horizontalAlignment = Alignment.CenterHorizontally

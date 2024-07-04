@@ -28,7 +28,7 @@ fun WelcomeLandOwner(navController: NavHostController, userName : String){
             .fillMaxSize(),
         color = Color(color = 0xFFFDF7E4)
     ){
-        BottomMenu(navController,userName, usage ="Browse Post")//scaffold on ScaffoldAndEtc.kt
+        BottomMenu(navController,userName, usage ="Browse Post", userType = "LandOwner")//scaffold on ScaffoldAndEtc.kt
         Row ( // Column for the surface
             modifier = Modifier
                 .fillMaxSize()
@@ -59,7 +59,7 @@ fun WelcomeLandOwner(navController: NavHostController, userName : String){
                     )
                     Spacer(modifier = Modifier.height(10.dp))
                     repeat(10){
-                        userContent() //calls user Content can be multiple dependin on count
+                        userContent(navController,userName,userType = "LandOwner") //calls user Content can be multiple dependin on count
                     }
                 }
             }

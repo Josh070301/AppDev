@@ -218,7 +218,7 @@ fun LoginAsLandOwner(navController : NavHostController){
                     ){
                         Button(
                             onClick = {
-                                navController.navigate("BrowsePost?userName=$userName")
+                                navController.navigate("LandOwnerBrowsePost?userName=$userName")
                                       },
                             modifier = Modifier
                                 .size(width = 150.dp, height = 45.dp)
