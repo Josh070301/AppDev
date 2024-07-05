@@ -29,9 +29,11 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 
 @Composable
 fun LoginAs(navController : NavHostController){
@@ -138,7 +140,9 @@ fun LoginAs(navController : NavHostController){
                             horizontalAlignment = Alignment.CenterHorizontally
                         ){
                             Button(
-                                onClick = { /*TODO*/ },
+                                onClick = {
+                                          navController.navigate("LoginAsTenant")
+                                },
                                 modifier = Modifier
                                     .size(width = 200.dp, height = 45.dp)
                                     .border(1.dp, Color.Black, RoundedCornerShape(13.dp)),
@@ -172,3 +176,4 @@ fun LoginAs(navController : NavHostController){
         }
     }
 }
+

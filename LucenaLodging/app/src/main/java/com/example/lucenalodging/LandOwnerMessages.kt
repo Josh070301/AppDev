@@ -105,7 +105,7 @@ fun LandOwnerMessages(navController: NavHostController, userName : String){
                             .verticalScroll(rememberScrollState())
                     ){
                         repeat(10){
-                            messagesContent(navController, userName)//in ScaffoldAndEtc.kt
+                            messagesContent(navController, userName, userType = "LandOwner")//in ScaffoldAndEtc.kt
                         }
 
                     }

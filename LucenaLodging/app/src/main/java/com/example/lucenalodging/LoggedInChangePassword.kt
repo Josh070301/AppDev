@@ -385,8 +385,3 @@ fun LandOwnerChangedPasswordSuccess(navController: NavHostController, userName :
 }
 
 
-@Preview
-@Composable
-fun SimpleComposablePreview() {
-    LandOwnerChangedPasswordSuccess(navController = rememberNavController(), userName = "Joshua")
-}
