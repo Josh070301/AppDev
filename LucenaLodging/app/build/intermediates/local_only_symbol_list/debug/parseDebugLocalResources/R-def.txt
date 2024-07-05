@@ -1,0 +1,28 @@
+R_DEF: Internal format may change without notice
+local
+color black
+color purple_200
+color purple_500
+color purple_700
+color teal_200
+color teal_700
+color white
+drawable browse_post
+drawable ic_launcher_background
+drawable ic_launcher_foreground
+drawable icons8_admin_settings_male_64
+drawable icons8_back_64
+drawable icons8_create_100
+drawable icons8_home_208
+drawable icons8_image_file_30
+drawable icons8_messages_250
+drawable icons8_profile_picture_90
+drawable icons8_search_64
+drawable icons8_send_96
+drawable icons8_settings_250
+mipmap ic_launcher
+mipmap ic_launcher_round
+string app_name
+style Theme.LucenaLodging
+xml backup_rules
+xml data_extraction_rules
