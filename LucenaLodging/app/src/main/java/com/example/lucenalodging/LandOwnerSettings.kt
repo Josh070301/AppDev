@@ -2,6 +2,7 @@ package com.example.lucenalodging
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -83,6 +84,11 @@ fun LandOwnerSettings(navController: NavHostController, userName : String){
                     ){
                         Row (
                             modifier = Modifier
+                                .clickable(
+                                    onClick = {
+                                        navController.navigate("LandOwnerChangePassword?userName=$userName")
+                                    }
+                                )
                                 .height(40.dp)
                                 .padding(start = 25.dp),
                             verticalAlignment = Alignment.CenterVertically
@@ -94,6 +100,11 @@ fun LandOwnerSettings(navController: NavHostController, userName : String){
                         MainSpacer()// at ScaffoldAndEtc.kt
                         Row (
                             modifier = Modifier
+                                .clickable(
+                                    onClick = {
+                                        navController.navigate("LoginAs")
+                                    }
+                                )
                                 .height(40.dp)
                                 .padding(start = 25.dp),
                             verticalAlignment = Alignment.CenterVertically

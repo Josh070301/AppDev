@@ -245,7 +245,7 @@ fun LandOwnerCreate(navController: NavHostController, userName : String){
                                     colors = TextFieldDefaults.colors( //removes extra background color of label in this outlinedTextField
                                         unfocusedContainerColor = Color.White
                                     ),
-                                    maxLines = 3, //set max lines for this textfield
+                                    maxLines = 10, //set max lines for this textfield
                                     supportingText = { //counts max chars
                                         Text(
                                             text = "${location.length} / $locationMaxChar",
@@ -274,7 +274,7 @@ fun LandOwnerCreate(navController: NavHostController, userName : String){
                                     colors = TextFieldDefaults.colors( //removes extra background color of label in this outlinedTextField
                                         unfocusedContainerColor = Color.White
                                     ),
-                                    maxLines = 3, //set max lines for this textfield
+                                    maxLines = 10, //set max lines for this textfield
                                     supportingText = {
                                         Text(
                                             text = "${curfew.length} / $curfewMaxChar",
@@ -303,7 +303,7 @@ fun LandOwnerCreate(navController: NavHostController, userName : String){
                                     colors = TextFieldDefaults.colors( //removes extra background color of label in this outlinedTextField
                                         unfocusedContainerColor = Color.White
                                     ),
-                                    maxLines = 3, //set max lines for this textfield
+                                    maxLines = 10, //set max lines for this textfield
                                     supportingText = {
                                         Text(
                                             text = "${roomIncludes.length} / $roomIncludesMaxChar",
@@ -466,7 +466,9 @@ fun LandOwnerCreate(navController: NavHostController, userName : String){
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ){
                                 OutlinedButton(
-                                    onClick = { /*TODO*/ },//soon navigates
+                                    onClick = {
+                                              navController.navigate("LandOwnerCreatedPost?userName=$userName")
+                                    },//soon navigates
                                     colors = ButtonDefaults.buttonColors(containerColor = Color(color = 0xFFF2B398)),
                                     modifier = Modifier
                                         .width(200.dp)
@@ -481,3 +483,91 @@ fun LandOwnerCreate(navController: NavHostController, userName : String){
         }
     }
 }
+
+@Composable
+fun LandOwnerCreatedPost(navController: NavHostController, userName : String){
+    Surface (
+        modifier = Modifier
+            .fillMaxSize(),
+        color = Color(color = 0xFFFDF7E4)
+    ) {
+        BottomMenu(navController, userName, usage = "Post", userType = "LandOwner")
+        Row( // Column for the surface
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(
+                    start = 5.dp,
+                    bottom = 125.dp,
+                    end = 5.dp,
+                    top = 70.dp
+                ) //padding in top and bottom bar
+
+        ) {
+            Column( //column for the surface
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clip(RoundedCornerShape(10.dp))
+                    .border(
+                        width = 1.dp,
+                        color = Color.Gray,
+                        shape = RoundedCornerShape(10.dp)
+                    )
+                    .background(Color(color = 0xFFF8E4BF))
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .height(70.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .padding(start = 20.dp, end = 20.dp)
+                                .fillMaxWidth(),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                text = "Create",
+                                fontSize = 25.sp,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier
+                                    .padding(top = 10.dp),
+                            )
+                            MainSpacer()
+                        }
+                    }
+                    Row(
+                        modifier = Modifier
+                            .fillMaxHeight(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column (
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ){
+                            Text(text = "Post Creation Successful",
+                                fontSize = 40.sp,
+                                textAlign = TextAlign.Center
+                            )
+                            OutlinedButton(
+                                onClick = {
+                                    navController.navigate("LandOwnerBrowsePost?userName=$userName")
+                                },//soon navigates
+                                colors = ButtonDefaults.buttonColors(containerColor = Color(color = 0xFFF2B398)),
+                                modifier = Modifier
+                                    .width(150.dp)
+                            ) {
+                                Text(text = "Check My Posts", color = Color.Black)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+

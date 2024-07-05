@@ -93,6 +93,11 @@ fun MainSpacer(){
 fun messagesContent(navController: NavHostController, userName : String){ //soon uses parameters for api calls
     Column(
         modifier = Modifier
+            .clickable(
+                onClick = {
+                    navController.navigate("LandOwnerSingleMessages?userName=$userName")
+                }
+            )
             .height(70.dp)
             .padding(start = 11.dp, end = 20.dp),
         horizontalAlignment = Alignment.Start
@@ -1169,5 +1174,4 @@ fun BottomMenu(navController: NavHostController,userName : String, usage:String,
             }
         }
     }
-
 }

@@ -113,9 +113,3 @@ fun LandOwnerUpdatedPost(navController: NavHostController, userName : String){
     }
 }
 
-
-@Preview
-@Composable
-fun SimpleComposablePreview() {
-    LandOwnerUpdatedPost(navController = rememberNavController(), userName = "Joshua")
-}
