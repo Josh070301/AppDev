@@ -304,7 +304,7 @@ fun LandOwnerChangedPasswordSuccess(navController: NavHostController, userName :
             .fillMaxSize(),
         color = Color(color = 0xFFFDF7E4)
     ) {
-        BottomMenu(navController, userName, usage = "Post", userType = "LandOwner")
+        BottomMenu(navController, userName, usage = "Settings", userType = "LandOwner")
         Row( // Column for the surface
             modifier = Modifier
                 .fillMaxSize()

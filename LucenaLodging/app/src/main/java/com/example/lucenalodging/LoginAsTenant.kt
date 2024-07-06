@@ -835,7 +835,7 @@ fun TenantResetPassword(navController: NavHostController, userName : String, ful
                                     .fillMaxWidth(),
                                 verticalAlignment = Alignment.CenterVertically
                             ){
-                                BackImage(navController = navController, backTo ="TenantCreateAccount" )
+                                BackImage(navController = navController, backTo ="TenantReset" )
                             }
                         }
                         MainSpacer()// at ScaffoldAndEtc.kt
@@ -922,7 +922,7 @@ fun TenantResetPassword(navController: NavHostController, userName : String, ful
                                         ),
                                     ) {
                                         Text(
-                                            text = "Confirm and Create",
+                                            text = "Confirm",
                                             color = Color.Black,
                                             fontSize = 20.sp,
                                             letterSpacing = 2.sp
@@ -946,7 +946,7 @@ fun TenantResetSuccess(navController: NavHostController, userName : String, full
         color = Color(color = 0xFFFDF7E4)
     ) {
         Column {
-            NotLoggedInTopBar(topBarValue = "Sign Up Tenant Account")
+            NotLoggedInTopBar(topBarValue = "Reset Tenant Account")
             Row( // Column for the surface
                 modifier = Modifier
                     .fillMaxSize()
@@ -982,7 +982,7 @@ fun TenantResetSuccess(navController: NavHostController, userName : String, full
                                     .fillMaxWidth(),
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ){
-                                Text(text = "TenantAccount Created",
+                                Text(text = "Tenant Account Reset Success",
                                     fontSize = 40.sp,
                                     textAlign = TextAlign.Center
                                 )

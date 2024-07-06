@@ -312,7 +312,7 @@ fun LandOwnerCreateAccount(navController: NavHostController){
                                     .fillMaxWidth(),
                                 verticalAlignment = Alignment.CenterVertically
                             ){
-                                BackImage(navController = navController, backTo ="LoginAsTenant" )
+                                BackImage(navController = navController, backTo ="LoginAsLandOwner" )
                             }
                         }
                         MainSpacer()// at ScaffoldAndEtc.kt
@@ -850,7 +850,7 @@ fun LandOwnerResetPassword(navController: NavHostController, userName : String, 
                                     .fillMaxWidth(),
                                 verticalAlignment = Alignment.CenterVertically
                             ){
-                                BackImage(navController = navController, backTo ="LandOwnerCreateAccount" )
+                                BackImage(navController = navController, backTo ="LandOwnerReset" )
                             }
                         }
                         MainSpacer()// at ScaffoldAndEtc.kt

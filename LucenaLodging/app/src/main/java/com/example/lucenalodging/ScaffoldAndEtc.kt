@@ -81,28 +81,55 @@ fun BackImage(navController: NavHostController, backTo:String){
 }
 @Composable
 fun SearchBar(navController: NavHostController, userName: String, userType: String){
-    var searchInput by remember {
-        mutableStateOf("")
-    }
-    OutlinedTextField(
-        modifier = Modifier
-            .height(50.dp)
-            .width(280.dp)
-            .padding(end = 10.dp),
-        colors = TextFieldDefaults.colors( //removes extra background color of label in this outlinedTextField
-            unfocusedContainerColor = Color.White
-        ),
-        shape = RoundedCornerShape(30.dp),
-        value = searchInput,
-        onValueChange = {searchInput = it},
-        placeholder = {Text(text = "Search Names", fontSize = 14.sp)},
-        leadingIcon = { Image(painter = painterResource(id = R.drawable.icons8_search_64),
-            contentDescription ="Search",
+    if (userType == "Tenants"){
+        var searchInput by remember {
+            mutableStateOf("")
+        }
+        OutlinedTextField(
             modifier = Modifier
-                .height(30.dp)
-                .width(30.dp)
-        ) },
-    )
+                .height(50.dp)
+                .width(280.dp)
+                .padding(end = 10.dp),
+            colors = TextFieldDefaults.colors( //removes extra background color of label in this outlinedTextField
+                unfocusedContainerColor = Color.White
+            ),
+            shape = RoundedCornerShape(30.dp),
+            value = searchInput,
+            onValueChange = {searchInput = it},
+            placeholder = {Text(text = "Search", fontSize = 14.sp)},
+            leadingIcon = { Image(painter = painterResource(id = R.drawable.icons8_search_64),
+                contentDescription ="Search",
+                modifier = Modifier
+                    .height(30.dp)
+                    .width(30.dp)
+            ) },
+        )
+    }
+    else{
+        var searchInput by remember {
+            mutableStateOf("")
+        }
+        OutlinedTextField(
+            modifier = Modifier
+                .height(50.dp)
+                .width(280.dp)
+                .padding(end = 10.dp),
+            colors = TextFieldDefaults.colors( //removes extra background color of label in this outlinedTextField
+                unfocusedContainerColor = Color.White
+            ),
+            shape = RoundedCornerShape(30.dp),
+            value = searchInput,
+            onValueChange = {searchInput = it},
+            placeholder = {Text(text = "Search Names", fontSize = 14.sp)},
+            leadingIcon = { Image(painter = painterResource(id = R.drawable.icons8_search_64),
+                contentDescription ="Search",
+                modifier = Modifier
+                    .height(30.dp)
+                    .width(30.dp)
+            ) },
+        )
+    }
+
 }
 
 @Composable
@@ -1480,19 +1507,19 @@ fun BottomMenu(navController: NavHostController,userName : String, usage:String,
                                 .fillMaxWidth()
                                 .clickable(
                                     onClick = {
-                                        navController.navigate("LandOwnerPost?userName=$userName")
+                                        navController.navigate("TenantSearch?userName=$userName")
                                     }
                                 ),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Image(
-                                painter = painterResource(id = R.drawable.icons8_create_100),
-                                contentDescription = "Create",
+                                painter = painterResource(id = R.drawable.icons8_search_64),
+                                contentDescription = "Search",
                                 modifier = Modifier
                                     .height(40.dp)
                                     .width(35.dp)
                             )
-                            Text(text = "Post", fontSize = 11.sp)
+                            Text(text = "Search", fontSize = 11.sp)
                         }
                     }
                     Row(
@@ -1664,19 +1691,19 @@ fun BottomMenu(navController: NavHostController,userName : String, usage:String,
                                 .fillMaxWidth()
                                 .clickable(
                                     onClick = {
-                                        navController.navigate("LandOwnerPost?userName=$userName")
+                                        navController.navigate("TenantSearch?userName=$userName")
                                     }
                                 ),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Image(
-                                painter = painterResource(id = R.drawable.icons8_create_100),
-                                contentDescription = "Create",
+                                painter = painterResource(id = R.drawable.icons8_search_64),
+                                contentDescription = "Search",
                                 modifier = Modifier
                                     .height(40.dp)
                                     .width(35.dp)
                             )
-                            Text(text = "Post", fontSize = 11.sp)
+                            Text(text = "Search", fontSize = 11.sp)
                         }
                     }
                     Row(
@@ -1691,7 +1718,7 @@ fun BottomMenu(navController: NavHostController,userName : String, usage:String,
                                 .fillMaxWidth()
                                 .clickable(
                                     onClick = {
-                                        navController.navigate("LandOwnerUserProfile?userName=$userName")
+                                        navController.navigate("TenantUserProfile?userName=$userName")
                                     }
                                 ),
                             horizontalAlignment = Alignment.CenterHorizontally
@@ -1718,7 +1745,7 @@ fun BottomMenu(navController: NavHostController,userName : String, usage:String,
                                 .fillMaxWidth()
                                 .clickable(
                                     onClick = {
-                                        navController.navigate("LandOwnerSettings?userName=$userName")
+                                        navController.navigate("TenantSettings?userName=$userName")
                                     }
                                 ),
                             horizontalAlignment = Alignment.CenterHorizontally
@@ -1745,4 +1772,557 @@ fun BottomMenu(navController: NavHostController,userName : String, usage:String,
             }
         }
     }
+    else if (usage == "Search" && userType == "Tenants"){
+        Scaffold(
+            topBar = {
+                Column (modifier = Modifier
+                    .fillMaxSize()
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(60.dp)
+                            .clip(RoundedCornerShape(bottomStart = 10.dp)) // 1 side of the border
+                            .clip(RoundedCornerShape(bottomEnd = 10.dp))
+                            .background(Color(color = 0xFFC2997C)), // color a column or row using background
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxSize(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(start = 10.dp),
+                                horizontalAlignment = Alignment.Start
+                            ) {
+                                Text(text = "Hello, Tenant $userName")
+                            }
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(10.dp))
+                }
+            },
+            bottomBar = {
+                BottomAppBar(
+                    containerColor = Color(color = 0xFFF8E4BF)
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth()
+                            .fillMaxHeight(), //responsive
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable(
+                                    onClick = {
+                                        navController.navigate("TenantBrowsePost?userName=$userName")
+                                    }
+                                ),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.browse_post),
+                                contentDescription = "Browse",
+                                modifier = Modifier
+                                    .height(40.dp)
+                                    .width(35.dp)
+                            )
+                            Text(text = "Browse Post", fontSize = 11.sp)
+                        }
+                    }
+                    Row(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth()
+                            .fillMaxHeight(), //responsive
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable(
+                                    onClick = {
+                                        navController.navigate("TenantMessages?userName=$userName")
+                                    }
+                                ),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.icons8_messages_250),
+                                contentDescription = "Messages",
+                                modifier = Modifier
+                                    .height(40.dp)
+                                    .width(35.dp)
+                            )
+                            Text(text = "Messages", fontSize = 11.sp)
+                        }
+                    }
+                    Row(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth()
+                            .background(color = Color(color = 0xFFE7CEBC))
+                            .fillMaxHeight(), //responsive
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable(
+                                    onClick = {
+                                        navController.navigate("TenantSearch?userName=$userName")
+                                    }
+                                ),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.icons8_search_64),
+                                contentDescription = "Search",
+                                modifier = Modifier
+                                    .height(40.dp)
+                                    .width(35.dp)
+                            )
+                            Text(text = "Search", fontSize = 11.sp)
+                        }
+                    }
+                    Row(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth()
+                            .fillMaxHeight(), //responsive
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable(
+                                    onClick = {
+                                        navController.navigate("TenantUserProfile?userName=$userName")
+                                    }
+                                ),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.icons8_admin_settings_male_64),
+                                contentDescription = "User Profile",
+                                modifier = Modifier
+                                    .height(40.dp)
+                                    .width(35.dp)
+                            )
+                            Text(text = "User Profile", fontSize = 11.sp)
+                        }
+                    }
+                    Row(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth()
+                            .fillMaxHeight(), //responsive
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable(
+                                    onClick = {
+                                        navController.navigate("TenantSettings?userName=$userName")
+                                    }
+                                ),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.icons8_settings_250),
+                                contentDescription = "Settings",
+                                modifier = Modifier
+                                    .height(40.dp)
+                                    .width(35.dp)
+                            )
+                            Text(text = "Settings", fontSize = 11.sp)
+                        }
+                    }
+                }
+            }
+        ) { innerPadding ->
+            Column(
+                modifier = Modifier
+                    .padding(innerPadding),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+            ) {
+
+            }
+        }
+    }
+    else if (usage == "User Profile" && userType == "Tenants"){
+        Scaffold(
+            topBar = {
+                Column (modifier = Modifier
+                    .fillMaxSize()
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(60.dp)
+                            .clip(RoundedCornerShape(bottomStart = 10.dp)) // 1 side of the border
+                            .clip(RoundedCornerShape(bottomEnd = 10.dp))
+                            .background(Color(color = 0xFFC2997C)), // color a column or row using background
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxSize(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(start = 10.dp),
+                                horizontalAlignment = Alignment.Start
+                            ) {
+                                Text(text = "Hello, Tenant $userName")
+                            }
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(10.dp))
+                }
+            },
+            bottomBar = {
+                BottomAppBar(
+                    containerColor = Color(color = 0xFFF8E4BF)
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth()
+                            .fillMaxHeight(), //responsive
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable(
+                                    onClick = {
+                                        navController.navigate("TenantBrowsePost?userName=$userName")
+                                    }
+                                ),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.browse_post),
+                                contentDescription = "Browse",
+                                modifier = Modifier
+                                    .height(40.dp)
+                                    .width(35.dp)
+                            )
+                            Text(text = "Browse Post", fontSize = 11.sp)
+                        }
+                    }
+                    Row(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth()
+                            .fillMaxHeight(), //responsive
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable(
+                                    onClick = {
+                                        navController.navigate("TenantMessages?userName=$userName")
+                                    }
+                                ),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.icons8_messages_250),
+                                contentDescription = "Messages",
+                                modifier = Modifier
+                                    .height(40.dp)
+                                    .width(35.dp)
+                            )
+                            Text(text = "Messages", fontSize = 11.sp)
+                        }
+                    }
+                    Row(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth()
+                            .fillMaxHeight(), //responsive
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable(
+                                    onClick = {
+                                        navController.navigate("TenantSearch?userName=$userName")
+                                    }
+                                ),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.icons8_search_64),
+                                contentDescription = "Search",
+                                modifier = Modifier
+                                    .height(40.dp)
+                                    .width(35.dp)
+                            )
+                            Text(text = "Search", fontSize = 11.sp)
+                        }
+                    }
+                    Row(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth()
+                            .background(color = Color(color = 0xFFE7CEBC))
+                            .fillMaxHeight(), //responsive
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable(
+                                    onClick = {
+                                        navController.navigate("TenantUserProfile?userName=$userName")
+                                    }
+                                ),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.icons8_admin_settings_male_64),
+                                contentDescription = "User Profile",
+                                modifier = Modifier
+                                    .height(40.dp)
+                                    .width(35.dp)
+                            )
+                            Text(text = "User Profile", fontSize = 11.sp)
+                        }
+                    }
+                    Row(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth()
+                            .fillMaxHeight(), //responsive
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable(
+                                    onClick = {
+                                        navController.navigate("TenantSettings?userName=$userName")
+                                    }
+                                ),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.icons8_settings_250),
+                                contentDescription = "Settings",
+                                modifier = Modifier
+                                    .height(40.dp)
+                                    .width(35.dp)
+                            )
+                            Text(text = "Settings", fontSize = 11.sp)
+                        }
+                    }
+                }
+            }
+        ) { innerPadding ->
+            Column(
+                modifier = Modifier
+                    .padding(innerPadding),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+            ) {
+
+            }
+        }
+    }
+    else if (usage == "Settings" && userType == "Tenants"){
+        Scaffold(
+            topBar = {
+                Column (modifier = Modifier
+                    .fillMaxSize()
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(60.dp)
+                            .clip(RoundedCornerShape(bottomStart = 10.dp)) // 1 side of the border
+                            .clip(RoundedCornerShape(bottomEnd = 10.dp))
+                            .background(Color(color = 0xFFC2997C)), // color a column or row using background
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxSize(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(start = 10.dp),
+                                horizontalAlignment = Alignment.Start
+                            ) {
+                                Text(text = "Hello, Tenant $userName")
+                            }
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(10.dp))
+                }
+            },
+            bottomBar = {
+                BottomAppBar(
+                    containerColor = Color(color = 0xFFF8E4BF)
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth()
+                            .fillMaxHeight(), //responsive
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable(
+                                    onClick = {
+                                        navController.navigate("TenantBrowsePost?userName=$userName")
+                                    }
+                                ),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.browse_post),
+                                contentDescription = "Browse",
+                                modifier = Modifier
+                                    .height(40.dp)
+                                    .width(35.dp)
+                            )
+                            Text(text = "Browse Post", fontSize = 11.sp)
+                        }
+                    }
+                    Row(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth()
+                            .fillMaxHeight(), //responsive
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable(
+                                    onClick = {
+                                        navController.navigate("TenantMessages?userName=$userName")
+                                    }
+                                ),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.icons8_messages_250),
+                                contentDescription = "Messages",
+                                modifier = Modifier
+                                    .height(40.dp)
+                                    .width(35.dp)
+                            )
+                            Text(text = "Messages", fontSize = 11.sp)
+                        }
+                    }
+                    Row(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth()
+                            .fillMaxHeight(), //responsive
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable(
+                                    onClick = {
+                                        navController.navigate("TenantSearch?userName=$userName")
+                                    }
+                                ),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.icons8_search_64),
+                                contentDescription = "Search",
+                                modifier = Modifier
+                                    .height(40.dp)
+                                    .width(35.dp)
+                            )
+                            Text(text = "Search", fontSize = 11.sp)
+                        }
+                    }
+                    Row(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth()
+                            .fillMaxHeight(), //responsive
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable(
+                                    onClick = {
+                                        navController.navigate("TenantUserProfile?userName=$userName")
+                                    }
+                                ),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.icons8_admin_settings_male_64),
+                                contentDescription = "User Profile",
+                                modifier = Modifier
+                                    .height(40.dp)
+                                    .width(35.dp)
+                            )
+                            Text(text = "User Profile", fontSize = 11.sp)
+                        }
+                    }
+                    Row(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth()
+                            .background(color = Color(color = 0xFFE7CEBC))
+                            .fillMaxHeight(), //responsive
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable(
+                                    onClick = {
+                                        navController.navigate("TenantSettings?userName=$userName")
+                                    }
+                                ),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.icons8_settings_250),
+                                contentDescription = "Settings",
+                                modifier = Modifier
+                                    .height(40.dp)
+                                    .width(35.dp)
+                            )
+                            Text(text = "Settings", fontSize = 11.sp)
+                        }
+                    }
+                }
+            }
+        ) { innerPadding ->
+            Column(
+                modifier = Modifier
+                    .padding(innerPadding),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+            ) {
+
+            }
+        }
+    }
+
 }

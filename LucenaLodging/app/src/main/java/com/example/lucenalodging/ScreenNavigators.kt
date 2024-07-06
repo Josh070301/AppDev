@@ -450,6 +450,84 @@ fun AppNavigator(){
             TenantBrowseMore(navController = navController,
                 userName = backstackEntry.arguments?.getString("userName") ?:"")//returns default string if this variable returned null
         }
+        composable(route = "TenantSearch?userName={userName}",
+            arguments = listOf(
+                navArgument(
+                    name = "userName"
+                ){
+                    type = NavType.StringType
+                }
+            )
+        ){
+                backstackEntry ->
+            SearchPost(navController = navController,
+                userName = backstackEntry.arguments?.getString("userName") ?:"")//returns default string if this variable returned null
+        }
+        composable(route = "TenantUserProfile?userName={userName}",
+            arguments = listOf(
+                navArgument(
+                    name = "userName"
+                ){
+                    type = NavType.StringType
+                }
+            )
+        ){
+                backstackEntry ->
+            TenantProfile(navController = navController,
+                userName = backstackEntry.arguments?.getString("userName") ?:"")//returns default string if this variable returned null
+        }
+        composable(route = "TenantSettings?userName={userName}",
+            arguments = listOf(
+                navArgument(
+                    name = "userName"
+                ){
+                    type = NavType.StringType
+                }
+            )
+        ){
+                backstackEntry ->
+            TenantSettings(navController = navController,
+                userName = backstackEntry.arguments?.getString("userName") ?:"")//returns default string if this variable returned null
+        }
+        composable(route = "TenantChangePassword?userName={userName}",
+            arguments = listOf(
+                navArgument(
+                    name = "userName"
+                ){
+                    type = NavType.StringType
+                }
+            )
+        ){
+                backstackEntry ->
+            TenantChangePassword(navController = navController,
+                userName = backstackEntry.arguments?.getString("userName") ?:"")//returns default string if this variable returned null
+        }
+        composable(route = "TenantConfirmedPassword?userName={userName}",
+            arguments = listOf(
+                navArgument(
+                    name = "userName"
+                ){
+                    type = NavType.StringType
+                }
+            )
+        ){
+                backstackEntry ->
+            TenantConfirmedPassword(navController = navController,
+                userName = backstackEntry.arguments?.getString("userName") ?:"")//returns default string if this variable returned null
+        }
+        composable(route = "TenantChangedPasswordSuccess?userName={userName}",
+            arguments = listOf(
+                navArgument(
+                    name = "userName"
+                ){
+                    type = NavType.StringType
+                }
+            )
+        ){
+                backstackEntry ->
+            TenantChangedPasswordSuccess(navController = navController,
+                userName = backstackEntry.arguments?.getString("userName") ?:"")//returns default string if this variable returned null
+        }
 
     }
 }
