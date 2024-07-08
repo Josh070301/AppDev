@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "191578921521",
+    "project_id": "lucenalodging",
+    "storage_bucket": "lucenalodging.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:191578921521:android:e35ee598ca6499b468d310",
+        "android_client_info": {
+          "package_name": "com.example.lucenalodging"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBDaitO4Fu5j5Y48ANL6GHs_fK0Hv7C9IE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

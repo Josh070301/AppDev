@@ -242,7 +242,8 @@ fun messagesContent(navController: NavHostController, userName : String, userTyp
 }
 
 @Composable
-fun userContent(navController: NavHostController,userName : String, userType : String){
+fun userContent(navController: NavHostController,fullName : String,email : String, userType : String){
+    var userName = ""
     if(userType == "LandOwner"){
         Spacer(modifier = Modifier.height(10.dp))
         Column(
@@ -278,7 +279,7 @@ fun userContent(navController: NavHostController,userName : String, userType : S
                     )
                 }
                 Spacer(modifier = Modifier.width(5.dp))
-                Text(text = "Joshua Laude",
+                Text(text = "$fullName",
                     fontStyle = FontStyle.Italic,
                     fontWeight = FontWeight.Bold
                 )
@@ -345,7 +346,7 @@ fun userContent(navController: NavHostController,userName : String, userType : S
             ){
                 OutlinedButton(
                     onClick = {
-                              navController.navigate("LandOwnerEditPost?userName=$userName")
+                              navController.navigate("LandOwnerEditPost?email=$email")
                     },//soon navigates
                     colors = ButtonDefaults.buttonColors(containerColor = Color(color = 0xFFF2B398))
                 ) {

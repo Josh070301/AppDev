@@ -20,15 +20,35 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 
 @Composable
-fun WelcomeLandOwner(navController: NavHostController, userName : String){
+fun WelcomeLandOwner(navController: NavHostController, email : String, auth: FirebaseAuth, db : FirebaseFirestore){
+    val uid = auth.currentUser?.uid
+    var fullName by remember{
+        mutableStateOf("")
+    }
+    if (uid != null){
+        db.collection("LandLords").document(uid)
+            .get()
+            .addOnSuccessListener { document ->
+                if (document != null){
+                    val FullNameFromDB = document.getString("fullName")
+                    fullName = FullNameFromDB.toString()
+                }
+            }
+    }
     Surface (
         modifier = Modifier
             .fillMaxSize(),
         color = Color(color = 0xFFFDF7E4)
     ){
-        BottomMenu(navController,userName, usage ="Browse Post", userType = "LandOwner")//scaffold on ScaffoldAndEtc.kt
+        BottomMenu(navController,fullName, usage ="Browse Post", userType = "LandOwner")//scaffold on ScaffoldAndEtc.kt
         Row ( // Column for the surface
             modifier = Modifier
                 .fillMaxSize()
@@ -59,7 +79,7 @@ fun WelcomeLandOwner(navController: NavHostController, userName : String){
                     )
                     Spacer(modifier = Modifier.height(10.dp))
                     repeat(10){
-                        userContent(navController,userName,userType = "LandOwner") //calls user Content can be multiple dependin on count
+                        userContent(navController,fullName,email,userType = "LandOwner") //calls user Content can be multiple dependin on count
                     }
                 }
             }

@@ -1,114 +1,110 @@
 [
     {
-        "merged": "C:\\Users\\ADMIN\\.gradle\\daemon\\8.6\\com.example.lucenalodging.app-debug-50:\\mipmap-xhdpi_ic_launcher.webp.flat",
-        "source": "C:\\Users\\ADMIN\\.gradle\\daemon\\8.6\\com.example.lucenalodging.app-main-52:\\mipmap-xhdpi\\ic_launcher.webp"
+        "merged": "com.example.lucenalodging.app-debug-60:/drawable_ic_launcher_background.xml.flat",
+        "source": "com.example.lucenalodging.app-main-62:/drawable/ic_launcher_background.xml"
     },
     {
-        "merged": "C:\\Users\\ADMIN\\.gradle\\daemon\\8.6\\com.example.lucenalodging.app-debug-50:\\drawable_icons8_image_file_30.png.flat",
-        "source": "C:\\Users\\ADMIN\\.gradle\\daemon\\8.6\\com.example.lucenalodging.app-main-52:\\drawable\\icons8_image_file_30.png"
+        "merged": "com.example.lucenalodging.app-debug-60:/mipmap-xxxhdpi_ic_launcher_round.webp.flat",
+        "source": "com.example.lucenalodging.app-main-62:/mipmap-xxxhdpi/ic_launcher_round.webp"
     },
     {
-        "merged": "C:\\Users\\ADMIN\\.gradle\\daemon\\8.6\\com.example.lucenalodging.app-debug-50:\\mipmap-mdpi_ic_launcher_round.webp.flat",
-        "source": "C:\\Users\\ADMIN\\.gradle\\daemon\\8.6\\com.example.lucenalodging.app-main-52:\\mipmap-mdpi\\ic_launcher_round.webp"
+        "merged": "com.example.lucenalodging.app-debug-60:/drawable_icons8_settings_250.png.flat",
+        "source": "com.example.lucenalodging.app-main-62:/drawable/icons8_settings_250.png"
     },
     {
-        "merged": "C:\\Users\\ADMIN\\.gradle\\daemon\\8.6\\com.example.lucenalodging.app-debug-50:\\drawable_ic_launcher_background.xml.flat",
-        "source": "C:\\Users\\ADMIN\\.gradle\\daemon\\8.6\\com.example.lucenalodging.app-main-52:\\drawable\\ic_launcher_background.xml"
+        "merged": "com.example.lucenalodging.app-debug-60:/mipmap-xhdpi_ic_launcher_round.webp.flat",
+        "source": "com.example.lucenalodging.app-main-62:/mipmap-xhdpi/ic_launcher_round.webp"
     },
     {
-        "merged": "C:\\Users\\ADMIN\\.gradle\\daemon\\8.6\\com.example.lucenalodging.app-debug-50:\\mipmap-hdpi_ic_launcher_round.webp.flat",
-        "source": "C:\\Users\\ADMIN\\.gradle\\daemon\\8.6\\com.example.lucenalodging.app-main-52:\\mipmap-hdpi\\ic_launcher_round.webp"
+        "merged": "com.example.lucenalodging.app-debug-60:/drawable_icons8_messages_250.png.flat",
+        "source": "com.example.lucenalodging.app-main-62:/drawable/icons8_messages_250.png"
     },
     {
-        "merged": "C:\\Users\\ADMIN\\.gradle\\daemon\\8.6\\com.example.lucenalodging.app-debug-50:\\mipmap-xxxhdpi_ic_launcher_round.webp.flat",
-        "source": "C:\\Users\\ADMIN\\.gradle\\daemon\\8.6\\com.example.lucenalodging.app-main-52:\\mipmap-xxxhdpi\\ic_launcher_round.webp"
+        "merged": "com.example.lucenalodging.app-debug-60:/drawable_browse_post.png.flat",
+        "source": "com.example.lucenalodging.app-main-62:/drawable/browse_post.png"
     },
     {
-        "merged": "C:\\Users\\ADMIN\\.gradle\\daemon\\8.6\\com.example.lucenalodging.app-debug-50:\\drawable_browse_post.png.flat",
-        "source": "C:\\Users\\ADMIN\\.gradle\\daemon\\8.6\\com.example.lucenalodging.app-main-52:\\drawable\\browse_post.png"
+        "merged": "com.example.lucenalodging.app-debug-60:/xml_backup_rules.xml.flat",
+        "source": "com.example.lucenalodging.app-main-62:/xml/backup_rules.xml"
     },
     {
-        "merged": "C:\\Users\\ADMIN\\.gradle\\daemon\\8.6\\com.example.lucenalodging.app-debug-50:\\drawable_icons8_profile_picture_90.png.flat",
-        "source": "C:\\Users\\ADMIN\\.gradle\\daemon\\8.6\\com.example.lucenalodging.app-main-52:\\drawable\\icons8_profile_picture_90.png"
+        "merged": "com.example.lucenalodging.app-debug-60:/mipmap-xhdpi_ic_launcher.webp.flat",
+        "source": "com.example.lucenalodging.app-main-62:/mipmap-xhdpi/ic_launcher.webp"
     },
     {
-        "merged": "C:\\Users\\ADMIN\\.gradle\\daemon\\8.6\\com.example.lucenalodging.app-debug-50:\\drawable_icons8_admin_settings_male_64.png.flat",
-        "source": "C:\\Users\\ADMIN\\.gradle\\daemon\\8.6\\com.example.lucenalodging.app-main-52:\\drawable\\icons8_admin_settings_male_64.png"
+        "merged": "com.example.lucenalodging.app-debug-60:/xml_data_extraction_rules.xml.flat",
+        "source": "com.example.lucenalodging.app-main-62:/xml/data_extraction_rules.xml"
     },
     {
-        "merged": "com.example.lucenalodging.app-debug-50:/drawable_icons8_send_96.png.flat",
-        "source": "com.example.lucenalodging.app-main-52:/drawable/icons8_send_96.png"
+        "merged": "com.example.lucenalodging.app-debug-60:/drawable_icons8_back_64.png.flat",
+        "source": "com.example.lucenalodging.app-main-62:/drawable/icons8_back_64.png"
     },
     {
-        "merged": "C:\\Users\\ADMIN\\.gradle\\daemon\\8.6\\com.example.lucenalodging.app-debug-50:\\drawable_icons8_back_64.png.flat",
-        "source": "C:\\Users\\ADMIN\\.gradle\\daemon\\8.6\\com.example.lucenalodging.app-main-52:\\drawable\\icons8_back_64.png"
+        "merged": "com.example.lucenalodging.app-debug-60:/mipmap-anydpi-v26_ic_launcher_round.xml.flat",
+        "source": "com.example.lucenalodging.app-main-62:/mipmap-anydpi-v26/ic_launcher_round.xml"
     },
     {
-        "merged": "C:\\Users\\ADMIN\\.gradle\\daemon\\8.6\\com.example.lucenalodging.app-debug-50:\\drawable_icons8_messages_250.png.flat",
-        "source": "C:\\Users\\ADMIN\\.gradle\\daemon\\8.6\\com.example.lucenalodging.app-main-52:\\drawable\\icons8_messages_250.png"
+        "merged": "com.example.lucenalodging.app-debug-60:/mipmap-mdpi_ic_launcher_round.webp.flat",
+        "source": "com.example.lucenalodging.app-main-62:/mipmap-mdpi/ic_launcher_round.webp"
     },
     {
-        "merged": "C:\\Users\\ADMIN\\.gradle\\daemon\\8.6\\com.example.lucenalodging.app-debug-50:\\mipmap-mdpi_ic_launcher.webp.flat",
-        "source": "C:\\Users\\ADMIN\\.gradle\\daemon\\8.6\\com.example.lucenalodging.app-main-52:\\mipmap-mdpi\\ic_launcher.webp"
+        "merged": "com.example.lucenalodging.app-debug-60:/mipmap-xxxhdpi_ic_launcher.webp.flat",
+        "source": "com.example.lucenalodging.app-main-62:/mipmap-xxxhdpi/ic_launcher.webp"
     },
     {
-        "merged": "C:\\Users\\ADMIN\\.gradle\\daemon\\8.6\\com.example.lucenalodging.app-debug-50:\\drawable_icons8_create_100.png.flat",
-        "source": "C:\\Users\\ADMIN\\.gradle\\daemon\\8.6\\com.example.lucenalodging.app-main-52:\\drawable\\icons8_create_100.png"
+        "merged": "com.example.lucenalodging.app-debug-60:/mipmap-hdpi_ic_launcher_round.webp.flat",
+        "source": "com.example.lucenalodging.app-main-62:/mipmap-hdpi/ic_launcher_round.webp"
     },
     {
-        "merged": "C:\\Users\\ADMIN\\.gradle\\daemon\\8.6\\com.example.lucenalodging.app-debug-50:\\xml_data_extraction_rules.xml.flat",
-        "source": "C:\\Users\\ADMIN\\.gradle\\daemon\\8.6\\com.example.lucenalodging.app-main-52:\\xml\\data_extraction_rules.xml"
+        "merged": "com.example.lucenalodging.app-debug-60:/drawable_icons8_admin_settings_male_64.png.flat",
+        "source": "com.example.lucenalodging.app-main-62:/drawable/icons8_admin_settings_male_64.png"
     },
     {
-        "merged": "C:\\Users\\ADMIN\\.gradle\\daemon\\8.6\\com.example.lucenalodging.app-debug-50:\\drawable_ic_launcher_foreground.xml.flat",
-        "source": "C:\\Users\\ADMIN\\.gradle\\daemon\\8.6\\com.example.lucenalodging.app-main-52:\\drawable\\ic_launcher_foreground.xml"
+        "merged": "com.example.lucenalodging.app-debug-60:/drawable_icons8_image_file_30.png.flat",
+        "source": "com.example.lucenalodging.app-main-62:/drawable/icons8_image_file_30.png"
     },
     {
-        "merged": "C:\\Users\\ADMIN\\.gradle\\daemon\\8.6\\com.example.lucenalodging.app-debug-50:\\drawable_icons8_search_64.png.flat",
-        "source": "C:\\Users\\ADMIN\\.gradle\\daemon\\8.6\\com.example.lucenalodging.app-main-52:\\drawable\\icons8_search_64.png"
+        "merged": "com.example.lucenalodging.app-debug-60:/mipmap-mdpi_ic_launcher.webp.flat",
+        "source": "com.example.lucenalodging.app-main-62:/mipmap-mdpi/ic_launcher.webp"
     },
     {
-        "merged": "C:\\Users\\ADMIN\\.gradle\\daemon\\8.6\\com.example.lucenalodging.app-debug-50:\\mipmap-xxxhdpi_ic_launcher.webp.flat",
-        "source": "C:\\Users\\ADMIN\\.gradle\\daemon\\8.6\\com.example.lucenalodging.app-main-52:\\mipmap-xxxhdpi\\ic_launcher.webp"
+        "merged": "com.example.lucenalodging.app-debug-60:/drawable_icons8_search_64.png.flat",
+        "source": "com.example.lucenalodging.app-main-62:/drawable/icons8_search_64.png"
     },
     {
-        "merged": "C:\\Users\\ADMIN\\.gradle\\daemon\\8.6\\com.example.lucenalodging.app-debug-50:\\mipmap-xxhdpi_ic_launcher.webp.flat",
-        "source": "C:\\Users\\ADMIN\\.gradle\\daemon\\8.6\\com.example.lucenalodging.app-main-52:\\mipmap-xxhdpi\\ic_launcher.webp"
+        "merged": "com.example.lucenalodging.app-debug-60:/drawable_ic_launcher_foreground.xml.flat",
+        "source": "com.example.lucenalodging.app-main-62:/drawable/ic_launcher_foreground.xml"
     },
     {
-        "merged": "C:\\Users\\ADMIN\\.gradle\\daemon\\8.6\\com.example.lucenalodging.app-debug-50:\\mipmap-xhdpi_ic_launcher_round.webp.flat",
-        "source": "C:\\Users\\ADMIN\\.gradle\\daemon\\8.6\\com.example.lucenalodging.app-main-52:\\mipmap-xhdpi\\ic_launcher_round.webp"
+        "merged": "com.example.lucenalodging.app-debug-60:/drawable_icons8_create_100.png.flat",
+        "source": "com.example.lucenalodging.app-main-62:/drawable/icons8_create_100.png"
     },
     {
-        "merged": "C:\\Users\\ADMIN\\.gradle\\daemon\\8.6\\com.example.lucenalodging.app-debug-50:\\mipmap-anydpi-v26_ic_launcher_round.xml.flat",
-        "source": "C:\\Users\\ADMIN\\.gradle\\daemon\\8.6\\com.example.lucenalodging.app-main-52:\\mipmap-anydpi-v26\\ic_launcher_round.xml"
+        "merged": "com.example.lucenalodging.app-debug-60:/mipmap-xxhdpi_ic_launcher_round.webp.flat",
+        "source": "com.example.lucenalodging.app-main-62:/mipmap-xxhdpi/ic_launcher_round.webp"
     },
     {
-        "merged": "C:\\Users\\ADMIN\\.gradle\\daemon\\8.6\\com.example.lucenalodging.app-debug-50:\\xml_backup_rules.xml.flat",
-        "source": "C:\\Users\\ADMIN\\.gradle\\daemon\\8.6\\com.example.lucenalodging.app-main-52:\\xml\\backup_rules.xml"
+        "merged": "com.example.lucenalodging.app-debug-60:/mipmap-xxhdpi_ic_launcher.webp.flat",
+        "source": "com.example.lucenalodging.app-main-62:/mipmap-xxhdpi/ic_launcher.webp"
     },
     {
-        "merged": "C:\\Users\\ADMIN\\.gradle\\daemon\\8.6\\com.example.lucenalodging.app-debug-50:\\drawable_icons8_edit_row_64.png.flat",
-        "source": "C:\\Users\\ADMIN\\.gradle\\daemon\\8.6\\com.example.lucenalodging.app-main-52:\\drawable\\icons8_edit_row_64.png"
+        "merged": "com.example.lucenalodging.app-debug-60:/drawable_icons8_home_208.png.flat",
+        "source": "com.example.lucenalodging.app-main-62:/drawable/icons8_home_208.png"
     },
     {
-        "merged": "C:\\Users\\ADMIN\\.gradle\\daemon\\8.6\\com.example.lucenalodging.app-debug-50:\\mipmap-xxhdpi_ic_launcher_round.webp.flat",
-        "source": "C:\\Users\\ADMIN\\.gradle\\daemon\\8.6\\com.example.lucenalodging.app-main-52:\\mipmap-xxhdpi\\ic_launcher_round.webp"
+        "merged": "com.example.lucenalodging.app-debug-60:/drawable_icons8_send_96.png.flat",
+        "source": "com.example.lucenalodging.app-main-62:/drawable/icons8_send_96.png"
     },
     {
-        "merged": "C:\\Users\\ADMIN\\.gradle\\daemon\\8.6\\com.example.lucenalodging.app-debug-50:\\mipmap-hdpi_ic_launcher.webp.flat",
-        "source": "C:\\Users\\ADMIN\\.gradle\\daemon\\8.6\\com.example.lucenalodging.app-main-52:\\mipmap-hdpi\\ic_launcher.webp"
+        "merged": "com.example.lucenalodging.app-debug-60:/mipmap-anydpi-v26_ic_launcher.xml.flat",
+        "source": "com.example.lucenalodging.app-main-62:/mipmap-anydpi-v26/ic_launcher.xml"
     },
     {
-        "merged": "C:\\Users\\ADMIN\\.gradle\\daemon\\8.6\\com.example.lucenalodging.app-debug-50:\\drawable_icons8_home_208.png.flat",
-        "source": "C:\\Users\\ADMIN\\.gradle\\daemon\\8.6\\com.example.lucenalodging.app-main-52:\\drawable\\icons8_home_208.png"
+        "merged": "com.example.lucenalodging.app-debug-60:/mipmap-hdpi_ic_launcher.webp.flat",
+        "source": "com.example.lucenalodging.app-main-62:/mipmap-hdpi/ic_launcher.webp"
     },
     {
-        "merged": "C:\\Users\\ADMIN\\.gradle\\daemon\\8.6\\com.example.lucenalodging.app-debug-50:\\mipmap-anydpi-v26_ic_launcher.xml.flat",
-        "source": "C:\\Users\\ADMIN\\.gradle\\daemon\\8.6\\com.example.lucenalodging.app-main-52:\\mipmap-anydpi-v26\\ic_launcher.xml"
-    },
-    {
-        "merged": "C:\\Users\\ADMIN\\.gradle\\daemon\\8.6\\com.example.lucenalodging.app-debug-50:\\drawable_icons8_settings_250.png.flat",
-        "source": "C:\\Users\\ADMIN\\.gradle\\daemon\\8.6\\com.example.lucenalodging.app-main-52:\\drawable\\icons8_settings_250.png"
+        "merged": "com.example.lucenalodging.app-debug-60:/drawable_icons8_profile_picture_90.png.flat",
+        "source": "com.example.lucenalodging.app-main-62:/drawable/icons8_profile_picture_90.png"
     }
 ]

@@ -1,5 +1,6 @@
 package com.example.lucenalodging
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -14,8 +15,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.OutlinedButton
@@ -43,14 +46,22 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.auth
+import com.google.firebase.Firebase
+import com.google.firebase.firestore.FirebaseFirestore
 
 //this code contains LoginAsLandOwner, create account as LandOwner, reset password as LandOwner
 @Composable
-fun LoginAsLandOwner(navController : NavHostController){
-    var userName by remember {
+fun LoginAsLandOwner(navController : NavHostController, auth: FirebaseAuth, db: FirebaseFirestore){
+    var email by remember {
         mutableStateOf("")
     }
     var password by remember {
+        mutableStateOf("")
+    }
+    var warn by remember {
         mutableStateOf("")
     }
     Surface(
@@ -174,8 +185,8 @@ fun LoginAsLandOwner(navController : NavHostController){
                         ){
                             Spacer(modifier = Modifier.height(10.dp))
                             OutlinedTextField(
-                                value = userName,
-                                onValueChange = {userName = it},
+                                value = email,
+                                onValueChange = {email = it},
                                 colors = TextFieldDefaults.colors( //removes extra background color of label in this outlinedTextField
                                     unfocusedContainerColor = Color.White
                                 ),
@@ -213,6 +224,7 @@ fun LoginAsLandOwner(navController : NavHostController){
                             textDecoration = TextDecoration.Underline
                         )
                     }
+                    Text(text = "$warn")
                     Column ( //Login button
                         modifier = Modifier
                             .fillMaxWidth()
@@ -222,8 +234,21 @@ fun LoginAsLandOwner(navController : NavHostController){
                     ){
                         Button(
                             onClick = {
-                                navController.navigate("LandOwnerBrowsePost?userName=$userName")
-                                      },
+                                if (email != "" || password != ""){
+                                    auth.signInWithEmailAndPassword(email, password)
+                                        .addOnCompleteListener {
+                                            if (it.isSuccessful){
+                                                navController.navigate("LandOwnerBrowsePost?email=$email")
+                                            }
+                                            else{
+                                                warn = "Invalid login credentials"
+                                            }
+                                        }
+                                }
+                                else{
+                                    warn = "Please fill all fields"
+                                }
+                              },
                             modifier = Modifier
                                 .size(width = 150.dp, height = 45.dp)
                                 .border(1.dp, Color.Black, RoundedCornerShape(13.dp)),
@@ -266,11 +291,23 @@ fun LoginAsLandOwner(navController : NavHostController){
     }
 }
 @Composable
-fun LandOwnerCreateAccount(navController: NavHostController){
-    var userName by remember {
+fun LandOwnerCreateAccount(navController: NavHostController, auth: FirebaseAuth, db : FirebaseFirestore){
+    var email by remember {
         mutableStateOf("")
     }
     var fullName by remember {
+        mutableStateOf("")
+    }
+    var newPassword by remember {
+        mutableStateOf("")
+    }
+    var confirmedPassword by remember {
+        mutableStateOf("")
+    }
+    var warn by remember {
+        mutableStateOf("")
+    }
+    var test by remember {
         mutableStateOf("")
     }
     Surface (
@@ -318,8 +355,8 @@ fun LandOwnerCreateAccount(navController: NavHostController){
                         MainSpacer()// at ScaffoldAndEtc.kt
                         Column (
                             modifier = Modifier
-                                .height(400.dp)
-                                .fillMaxWidth()
+                                .fillMaxSize()
+                                .verticalScroll(rememberScrollState())
                         ){
                             Row (
                                 modifier = Modifier
@@ -346,21 +383,23 @@ fun LandOwnerCreateAccount(navController: NavHostController){
                                         .fillMaxWidth()
                                         .padding(start = 30.dp)
                                 ){
-                                    Text(text = "Username",
+                                    Text(text = "Email",
                                         fontSize = 17.sp,
                                         textAlign = TextAlign.Start,
                                         modifier = Modifier
                                             .fillMaxWidth()
                                     )
                                     TextField(
-                                        value = userName,
-                                        onValueChange = {userName = it},
+                                        value = email,
+                                        onValueChange = {email = it},
                                         colors = TextFieldDefaults.colors( //removes extra background color of label in this outlinedTextField
                                             unfocusedContainerColor = Color.White
                                         ),
                                         shape = RoundedCornerShape(10.dp),
-                                        label = { Text("Username", color = Color.Gray) },
+                                        label = { Text("Email", color = Color.Gray) },
                                     )
+                                    Text(text = "$warn")
+                                    Text(text="$test")
                                     Spacer(modifier = Modifier.height(20.dp))
                                     Text(text = "Full Name",
                                         fontSize = 17.sp,
@@ -377,8 +416,43 @@ fun LandOwnerCreateAccount(navController: NavHostController){
                                         shape = RoundedCornerShape(10.dp),
                                         label = { Text("Enter Full Name Here", color = Color.Gray) },
                                     )
+                                    Spacer(modifier = Modifier.height(20.dp))
+                                    Text(text = "Password",
+                                        fontSize = 17.sp,
+                                        textAlign = TextAlign.Start,
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                    )
+                                    TextField(
+                                        value = newPassword,
+                                        onValueChange = {newPassword = it},
+                                        visualTransformation = PasswordVisualTransformation(),
+                                        colors = TextFieldDefaults.colors( //removes extra background color of label in this outlinedTextField
+                                            unfocusedContainerColor = Color.White
+                                        ),
+                                        shape = RoundedCornerShape(10.dp),
+                                        label = { Text("Password", color = Color.Gray) },
+                                    )
+                                    Spacer(modifier = Modifier.height(20.dp))
+                                    Text(text = "Confirm Password",
+                                        fontSize = 17.sp,
+                                        textAlign = TextAlign.Start,
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                    )
+                                    TextField(
+                                        value = confirmedPassword,
+                                        onValueChange = {confirmedPassword = it},
+                                        visualTransformation = PasswordVisualTransformation(),
+                                        colors = TextFieldDefaults.colors( //removes extra background color of label in this outlinedTextField
+                                            unfocusedContainerColor = Color.White
+                                        ),
+                                        shape = RoundedCornerShape(10.dp),
+                                        label = { Text("Password", color = Color.Gray) },
+                                    )
+
                                 }
-                                Spacer(modifier = Modifier.height(50.dp))
+                                Spacer(modifier = Modifier.height(20.dp))
                                 Column (
                                     modifier = Modifier
                                         .fillMaxWidth(),
@@ -386,8 +460,33 @@ fun LandOwnerCreateAccount(navController: NavHostController){
                                 ){
                                     Button(
                                         onClick = {
-                                            navController.navigate("LandOwnerCreatePassword?userName=$userName&fullName=$fullName")
-                                        },
+                                            if (newPassword.length > 7 && newPassword == confirmedPassword){
+                                                auth.createUserWithEmailAndPassword(email, newPassword) //firebase create
+                                                    .addOnCompleteListener {
+                                                        if (it.isSuccessful){
+                                                            val user = auth.currentUser
+                                                            val uid = user?.uid //stores additional info in firestore
+
+                                                            if (uid != null){
+                                                                val userMap = hashMapOf(
+                                                                    "fullName" to fullName,
+                                                                    "email" to email,
+                                                                    "userType" to "Landlord"
+                                                                )
+                                                                db.collection("LandLords").document(uid)
+                                                                    .set(userMap)
+                                                                    .addOnSuccessListener {
+                                                                        navController.navigate("LandOwnerCreateAccountSuccess")
+                                                                    }
+                                                            }
+                                                        }
+                                                        else{
+                                                            warn = "Invalid/Email taken"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        ,
                                         modifier = Modifier
                                             .size(width = 150.dp, height = 45.dp)
                                             .border(1.dp, Color.Black, RoundedCornerShape(13.dp)),
@@ -427,157 +526,7 @@ fun LandOwnerCreateAccount(navController: NavHostController){
 }
 
 @Composable
-fun LoginAsLandOwnerCreatePassword(navController: NavHostController, userName : String, fullName : String){
-    var newPassword by remember {
-        mutableStateOf("")
-    }
-    var confirmedPassword by remember {
-        mutableStateOf("")
-    }
-    Surface (
-        modifier = Modifier
-            .fillMaxSize(),
-        color = Color(color = 0xFFFDF7E4)
-    ) {
-        Column {
-            NotLoggedInTopBar(topBarValue = "Sign Up LandOwner Account")
-            Row ( // Column for the surface
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(start = 5.dp, bottom = 125.dp, end = 5.dp, top = 70.dp) //padding in top and bottom bar
-
-            ) {
-                Column( //column for the surface
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .clip(RoundedCornerShape(10.dp))
-                        .border(
-                            width = 1.dp,
-                            color = Color.Gray,
-                            shape = RoundedCornerShape(10.dp)
-                        )
-                        .background(Color(color = 0xFFF8E4BF))
-                ) {
-                    Column (
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(start = 20.dp, end = 20.dp)
-                    ){
-                        Column (
-                            modifier = Modifier
-                                .height(70.dp),
-                        ){
-                            Row (
-                                modifier = Modifier
-                                    .padding(top = 10.dp)
-                                    .fillMaxWidth(),
-                                verticalAlignment = Alignment.CenterVertically
-                            ){
-                                BackImage(navController = navController, backTo ="LandOwnerCreateAccount" )
-                            }
-                        }
-                        MainSpacer()// at ScaffoldAndEtc.kt
-                        Column (
-                            modifier = Modifier
-                                .height(400.dp)
-                                .fillMaxWidth()
-                        ){
-                            Row (
-                                modifier = Modifier
-                                    .height(40.dp)
-                                    .padding(start = 25.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ){
-                                Text(
-                                    text = "Please Enter Account Password",
-                                    fontSize = 17.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    modifier = Modifier
-                                        .padding(top = 10.dp),
-                                )
-                            }
-                            Spacer(modifier = Modifier.height(20.dp))
-                            Column (
-                                modifier = Modifier
-                                    .fillMaxSize(),
-                                horizontalAlignment = Alignment.Start
-                            ){
-                                Column (
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(start = 30.dp)
-                                ){
-                                    Text(text = "Password",
-                                        textAlign = TextAlign.Start,
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                    )
-                                    TextField(
-                                        value = newPassword,
-                                        onValueChange = {newPassword = it},
-                                        visualTransformation = PasswordVisualTransformation(),
-                                        colors = TextFieldDefaults.colors( //removes extra background color of label in this outlinedTextField
-                                            unfocusedContainerColor = Color.White
-                                        ),
-                                        shape = RoundedCornerShape(10.dp),
-                                        label = { Text("Password", color = Color.Gray) },
-                                    )
-                                    Spacer(modifier = Modifier.height(20.dp))
-                                    Text(text = "Confirm Password",
-                                        textAlign = TextAlign.Start,
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                    )
-                                    TextField(
-                                        value = confirmedPassword,
-                                        onValueChange = {confirmedPassword = it},
-                                        visualTransformation = PasswordVisualTransformation(),
-                                        colors = TextFieldDefaults.colors( //removes extra background color of label in this outlinedTextField
-                                            unfocusedContainerColor = Color.White
-                                        ),
-                                        shape = RoundedCornerShape(10.dp),
-                                        label = { Text("Password", color = Color.Gray) },
-                                    )
-                                }
-                                Spacer(modifier = Modifier.height(50.dp))
-                                Column (
-                                    modifier = Modifier
-                                        .fillMaxWidth(),
-                                    horizontalAlignment = Alignment.CenterHorizontally
-                                ){
-                                    Button(
-                                        onClick = {
-                                            if (newPassword.length > 7 && newPassword == confirmedPassword){
-                                                navController.navigate("LandOwnerCreateAccountSuccess?userName=$userName&fullName=$fullName&password=$newPassword")
-                                            }
-                                        },
-                                        modifier = Modifier
-                                            .size(width = 150.dp, height = 45.dp)
-                                            .border(1.dp, Color.Black, RoundedCornerShape(13.dp)),
-                                        shape = RoundedCornerShape(13.dp),
-                                        colors = ButtonDefaults.buttonColors(
-                                            containerColor = Color(color = 0xFFF2B398),
-                                        ),
-                                    ) {
-                                        Text(
-                                            text = "Confirm and Create",
-                                            color = Color.Black,
-                                            fontSize = 20.sp,
-                                            letterSpacing = 2.sp
-                                        )
-                                    }
-                                }
-                            }
-                            MainSpacer()
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-@Composable
-fun LandOwnerCreateAccountSuccess(navController: NavHostController, userName : String, fullName : String, password : String){
+fun LandOwnerCreateAccountSuccess(navController: NavHostController){
     Surface (
         modifier = Modifier
             .fillMaxSize(),

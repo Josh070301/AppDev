@@ -35,13 +35,13 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 
 @Composable //aboutPost now
-fun LandOwnerEditPost(navController : NavHostController, userName : String){
+fun LandOwnerEditPost(navController : NavHostController, email : String){
     Surface (
         modifier = Modifier
             .fillMaxSize(),
         color = Color(color = 0xFFFDF7E4)
     ){
-        BottomMenu(navController,userName, usage ="Browse Post", userType = "LandOwner")
+        BottomMenu(navController,email, usage ="Browse Post", userType = "LandOwner")
         Row ( // Column for the surface
             modifier = Modifier
                 .fillMaxSize()
@@ -70,7 +70,7 @@ fun LandOwnerEditPost(navController : NavHostController, userName : String){
                             .padding(start = 10.dp, end = 20.dp, top = 20.dp),
                     ) {
                         Row {
-                            BackImage(navController = navController, backTo = "LandOwnerBrowsePost?userName=$userName" )
+                            BackImage(navController = navController, backTo = "LandOwnerBrowsePost?email=$email" )
                         }
                         Spacer(modifier = Modifier.width(10.dp))
                         Column(
@@ -168,7 +168,7 @@ fun LandOwnerEditPost(navController : NavHostController, userName : String){
                                     ){
                                         OutlinedButton(
                                             onClick = {
-                                                navController.navigate("LandOwnerUpdate?userName=$userName")
+                                                navController.navigate("LandOwnerUpdate?email=$email")
                                             },//soon navigates
                                             modifier = Modifier
                                                 .width(150.dp),
