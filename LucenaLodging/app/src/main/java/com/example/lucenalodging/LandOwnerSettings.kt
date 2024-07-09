@@ -15,6 +15,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -25,15 +29,31 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 @Composable
-fun LandOwnerSettings(navController: NavHostController, userName : String){
+fun LandOwnerSettings(navController: NavHostController, auth: FirebaseAuth, db : FirebaseFirestore){
+    val uid = auth.currentUser?.uid
+    var fullName by remember{
+        mutableStateOf("")
+    }
+    if (uid != null){
+        db.collection("LandLords").document(uid)
+            .get()
+            .addOnSuccessListener { document ->
+                if (document != null){
+                    val FullNameFromDB = document.getString("fullName")
+                    fullName = FullNameFromDB.toString()
+                }
+            }
+    }
     Surface (
         modifier = Modifier
             .fillMaxSize(),
         color = Color(color = 0xFFFDF7E4)
     ) {
-        BottomMenu(navController,userName, usage = "Settings", userType = "LandOwner")//scaffold on ScaffoldAndEtc.kt
+        BottomMenu(navController,fullName, usage = "Settings", userType = "LandOwner")//scaffold on ScaffoldAndEtc.kt
         Row ( // Column for the surface
             modifier = Modifier
                 .fillMaxSize()
@@ -86,7 +106,7 @@ fun LandOwnerSettings(navController: NavHostController, userName : String){
                             modifier = Modifier
                                 .clickable(
                                     onClick = {
-                                        navController.navigate("LandOwnerChangePassword?userName=$userName")
+                                        navController.navigate("LandOwnerChangePassword")
                                     }
                                 )
                                 .height(40.dp)

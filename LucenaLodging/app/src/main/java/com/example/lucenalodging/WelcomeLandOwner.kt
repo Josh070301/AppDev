@@ -28,7 +28,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 
 @Composable
-fun WelcomeLandOwner(navController: NavHostController, email : String, auth: FirebaseAuth, db : FirebaseFirestore){
+fun WelcomeLandOwner(navController: NavHostController, auth: FirebaseAuth, db : FirebaseFirestore){
     val uid = auth.currentUser?.uid
     var fullName by remember{
         mutableStateOf("")
@@ -79,7 +79,7 @@ fun WelcomeLandOwner(navController: NavHostController, email : String, auth: Fir
                     )
                     Spacer(modifier = Modifier.height(10.dp))
                     repeat(10){
-                        userContent(navController,fullName,email,userType = "LandOwner") //calls user Content can be multiple dependin on count
+                        userContent(navController,fullName,userType = "LandOwner") //calls user Content can be multiple dependin on count
                     }
                 }
             }

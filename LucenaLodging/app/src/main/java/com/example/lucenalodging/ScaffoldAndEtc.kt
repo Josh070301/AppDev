@@ -80,7 +80,7 @@ fun BackImage(navController: NavHostController, backTo:String){
     )
 }
 @Composable
-fun SearchBar(navController: NavHostController, userName: String, userType: String){
+fun SearchBar(navController: NavHostController, fullName: String, userType: String){
     if (userType == "Tenants"){
         var searchInput by remember {
             mutableStateOf("")
@@ -144,13 +144,13 @@ fun MainSpacer(){
 }
 
 @Composable
-fun messagesContent(navController: NavHostController, userName : String, userType: String){ //soon uses parameters for api calls
+fun messagesContent(navController: NavHostController, fullName: String , userType: String){ //soon uses parameters for api calls
     if(userType =="LandOwner"){
         Column(
             modifier = Modifier
                 .clickable(
                     onClick = {
-                        navController.navigate("LandOwnerSingleMessages?userName=$userName")
+                        navController.navigate("LandOwnerSingleMessages")
                     }
                 )
                 .height(70.dp)
@@ -197,7 +197,7 @@ fun messagesContent(navController: NavHostController, userName : String, userTyp
             modifier = Modifier
                 .clickable(
                     onClick = {
-                        navController.navigate("TenantSingleMessages?userName=$userName")
+                        navController.navigate("TenantSingleMessages")
                     }
                 )
                 .height(70.dp)
@@ -242,7 +242,7 @@ fun messagesContent(navController: NavHostController, userName : String, userTyp
 }
 
 @Composable
-fun userContent(navController: NavHostController,fullName : String,email : String, userType : String){
+fun userContent(navController: NavHostController,fullName : String, userType : String){
     var userName = ""
     if(userType == "LandOwner"){
         Spacer(modifier = Modifier.height(10.dp))
@@ -346,7 +346,7 @@ fun userContent(navController: NavHostController,fullName : String,email : Strin
             ){
                 OutlinedButton(
                     onClick = {
-                              navController.navigate("LandOwnerEditPost?email=$email")
+                              navController.navigate("LandOwnerEditPost")
                     },//soon navigates
                     colors = ButtonDefaults.buttonColors(containerColor = Color(color = 0xFFF2B398))
                 ) {
@@ -533,7 +533,7 @@ fun BottomMenu(navController: NavHostController,userName : String, usage:String,
                                 .fillMaxWidth()
                                 .clickable(
                                     onClick = {
-                                        navController.navigate("LandOwnerBrowsePost?userName=$userName")
+                                        navController.navigate("LandOwnerBrowsePost")
                                     }
                                 ),
                             horizontalAlignment = Alignment.CenterHorizontally
@@ -560,7 +560,7 @@ fun BottomMenu(navController: NavHostController,userName : String, usage:String,
                                 .fillMaxWidth()
                                 .clickable(
                                     onClick = {
-                                        navController.navigate("LandOwnerMessages?userName=$userName")
+                                        navController.navigate("LandOwnerMessages")
                                     }
                                 ),
                             horizontalAlignment = Alignment.CenterHorizontally
@@ -587,7 +587,7 @@ fun BottomMenu(navController: NavHostController,userName : String, usage:String,
                                 .fillMaxWidth()
                                 .clickable(
                                     onClick = {
-                                        navController.navigate("LandOwnerPost?userName=$userName")
+                                        navController.navigate("LandOwnerPost")
                                     }
                                 ),
                             horizontalAlignment = Alignment.CenterHorizontally
@@ -614,7 +614,7 @@ fun BottomMenu(navController: NavHostController,userName : String, usage:String,
                                 .fillMaxWidth()
                                 .clickable(
                                     onClick = {
-                                        navController.navigate("LandOwnerUserProfile?userName=$userName")
+                                        navController.navigate("LandOwnerUserProfile")
                                     }
                                 ),
                             horizontalAlignment = Alignment.CenterHorizontally
@@ -641,7 +641,7 @@ fun BottomMenu(navController: NavHostController,userName : String, usage:String,
                                 .fillMaxWidth()
                                 .clickable(
                                     onClick = {
-                                        navController.navigate("LandOwnerSettings?userName=$userName")
+                                        navController.navigate("LandOwnerSettings")
                                     }
                                 ),
                             horizontalAlignment = Alignment.CenterHorizontally

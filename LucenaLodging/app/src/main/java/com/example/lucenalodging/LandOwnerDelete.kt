@@ -15,6 +15,10 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -24,15 +28,31 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 @Composable
-fun LandOwnerDelete(navController: NavHostController, userName : String){
+fun LandOwnerDelete(navController: NavHostController, auth: FirebaseAuth, db : FirebaseFirestore){
+    val uid = auth.currentUser?.uid
+    var fullName by remember{
+        mutableStateOf("")
+    }
+    if (uid != null){
+        db.collection("LandLords").document(uid)
+            .get()
+            .addOnSuccessListener { document ->
+                if (document != null){
+                    val FullNameFromDB = document.getString("fullName")
+                    fullName = FullNameFromDB.toString()
+                }
+            }
+    }
     Surface (
         modifier = Modifier
             .fillMaxSize(),
         color = Color(color = 0xFFFDF7E4)
     ) {
-        BottomMenu(navController, userName, usage = "Browse Post", userType = "LandOwner")
+        BottomMenu(navController, fullName, usage = "Browse Post", userType = "LandOwner")
         Row( // Column for the surface
             modifier = Modifier
                 .fillMaxSize()
@@ -75,7 +95,7 @@ fun LandOwnerDelete(navController: NavHostController, userName : String){
                             )
                             OutlinedButton(
                                 onClick = {
-                                    navController.navigate("LandOwnerBrowsePost?userName=$userName")
+                                    navController.navigate("LandOwnerBrowsePost")
                                 },//soon navigates
                                 colors = ButtonDefaults.buttonColors(containerColor = Color(color = 0xFFF2B398)),
                                 modifier = Modifier

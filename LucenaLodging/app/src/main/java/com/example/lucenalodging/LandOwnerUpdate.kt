@@ -48,9 +48,25 @@ import androidx.core.text.isDigitsOnly
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 @Composable
-fun LandOwnerUpdate(navController: NavHostController, userName : String){
+fun LandOwnerUpdate(navController: NavHostController, auth : FirebaseAuth, db :FirebaseFirestore){
+    val uid = auth.currentUser?.uid
+    var fullName by remember{
+        mutableStateOf("")
+    }
+    if (uid != null){
+        db.collection("LandLords").document(uid)
+            .get()
+            .addOnSuccessListener { document ->
+                if (document != null){
+                    val FullNameFromDB = document.getString("fullName")
+                    fullName = FullNameFromDB.toString()
+                }
+            }
+    }
     var selectRoomTitle by remember {
         mutableStateOf("Room For Rent")
     }
@@ -92,7 +108,7 @@ fun LandOwnerUpdate(navController: NavHostController, userName : String){
             .fillMaxSize(),
         color = Color(color = 0xFFFDF7E4)
     ) {
-        BottomMenu(navController, userName, usage = "Browse Post", userType = "LandOwner")
+        BottomMenu(navController, fullName, usage = "Browse Post", userType = "LandOwner")
         Row( // Column for the surface
             modifier = Modifier
                 .fillMaxSize()
@@ -128,7 +144,7 @@ fun LandOwnerUpdate(navController: NavHostController, userName : String){
                         Row {
                             BackImage(
                                 navController = navController,
-                                backTo = "LandOwnerEditPost?userName=$userName"
+                                backTo = "LandOwnerEditPost"
                             )
                         }
                         Spacer(modifier = Modifier.width(10.dp))
@@ -483,7 +499,7 @@ fun LandOwnerUpdate(navController: NavHostController, userName : String){
                                 ){
                                     OutlinedButton(
                                         onClick = {
-                                                  navController.navigate("LandOwnerUpdatedPost?userName=$userName")
+                                                  navController.navigate("LandOwnerUpdatedPost")
                                         },//soon navigates
                                         colors = ButtonDefaults.buttonColors(containerColor = Color(color = 0xFFF2B398)),
                                         modifier = Modifier
@@ -509,7 +525,6 @@ fun LandOwnerUpdate(navController: NavHostController, userName : String){
                                             dialogTitle = "Confirm Delete Action?",
                                             dialogText = "The data will be permanently Deleted",
                                             navController = navController,
-                                            userName = userName,
                                         )
                                     }
                                 }
@@ -529,7 +544,6 @@ fun AlertDialogDelete(
     dialogTitle: String,
     dialogText: String,
     navController: NavHostController,
-    userName: String
 ) {
     AlertDialog(
         title = {
@@ -545,7 +559,7 @@ fun AlertDialogDelete(
             TextButton(
                 onClick = {
                     onDismissRequest()
-                    navController.navigate("LandOwnerDelete?userName=$userName")
+                    navController.navigate("LandOwnerDelete")
                 }
             ) {
                 Text("Delete")

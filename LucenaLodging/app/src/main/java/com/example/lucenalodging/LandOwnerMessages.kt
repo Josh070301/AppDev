@@ -21,8 +21,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -33,16 +35,32 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 
 @Composable
-fun LandOwnerMessages(navController: NavHostController, userName : String){
+fun LandOwnerMessages(navController: NavHostController, auth: FirebaseAuth, db : FirebaseFirestore){
+    val uid = auth.currentUser?.uid
+    var fullName by remember{
+        mutableStateOf("")
+    }
+    if (uid != null){
+        db.collection("LandLords").document(uid)
+            .get()
+            .addOnSuccessListener { document ->
+                if (document != null){
+                    val FullNameFromDB = document.getString("fullName")
+                    fullName = FullNameFromDB.toString()
+                }
+            }
+    }
     Surface (
         modifier = Modifier
             .fillMaxSize(),
         color = Color(color = 0xFFFDF7E4)
     ) {
-        BottomMenu(navController,userName, usage = "Messages", userType = "LandOwner")//scaffold on ScaffoldAndEtc.kt
+        BottomMenu(navController,fullName, usage = "Messages", userType = "LandOwner")//scaffold on ScaffoldAndEtc.kt
         Row ( // Column for the surface
             modifier = Modifier
                 .fillMaxSize()
@@ -96,7 +114,7 @@ fun LandOwnerMessages(navController: NavHostController, userName : String){
                                 .fillMaxHeight(),
                             verticalAlignment = Alignment.CenterVertically
                         ){
-                            SearchBar(navController, userName, userType = "LandOwner") //in ScaffoldAndEtc.kt
+                            SearchBar(navController, fullName, userType = "LandOwner") //in ScaffoldAndEtc.kt
                         }
                     }
                     Column (
@@ -105,7 +123,7 @@ fun LandOwnerMessages(navController: NavHostController, userName : String){
                             .verticalScroll(rememberScrollState())
                     ){
                         repeat(10){
-                            messagesContent(navController, userName, userType = "LandOwner")//in ScaffoldAndEtc.kt
+                            messagesContent(navController, fullName, userType = "LandOwner")//in ScaffoldAndEtc.kt
                         }
 
                     }

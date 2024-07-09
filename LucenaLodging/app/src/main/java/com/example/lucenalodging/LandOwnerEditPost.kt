@@ -22,6 +22,10 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ComposableTarget
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -33,15 +37,31 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 @Composable //aboutPost now
-fun LandOwnerEditPost(navController : NavHostController, email : String){
+fun LandOwnerEditPost(navController : NavHostController, auth: FirebaseAuth, db :FirebaseFirestore){
+    val uid = auth.currentUser?.uid
+    var fullName by remember{
+        mutableStateOf("")
+    }
+    if (uid != null){
+        db.collection("LandLords").document(uid)
+            .get()
+            .addOnSuccessListener { document ->
+                if (document != null){
+                    val FullNameFromDB = document.getString("fullName")
+                    fullName = FullNameFromDB.toString()
+                }
+            }
+    }
     Surface (
         modifier = Modifier
             .fillMaxSize(),
         color = Color(color = 0xFFFDF7E4)
     ){
-        BottomMenu(navController,email, usage ="Browse Post", userType = "LandOwner")
+        BottomMenu(navController,fullName, usage ="Browse Post", userType = "LandOwner")
         Row ( // Column for the surface
             modifier = Modifier
                 .fillMaxSize()
@@ -70,7 +90,7 @@ fun LandOwnerEditPost(navController : NavHostController, email : String){
                             .padding(start = 10.dp, end = 20.dp, top = 20.dp),
                     ) {
                         Row {
-                            BackImage(navController = navController, backTo = "LandOwnerBrowsePost?email=$email" )
+                            BackImage(navController = navController, backTo = "LandOwnerBrowsePost" )
                         }
                         Spacer(modifier = Modifier.width(10.dp))
                         Column(
@@ -168,7 +188,7 @@ fun LandOwnerEditPost(navController : NavHostController, email : String){
                                     ){
                                         OutlinedButton(
                                             onClick = {
-                                                navController.navigate("LandOwnerUpdate?email=$email")
+                                                navController.navigate("LandOwnerUpdate")
                                             },//soon navigates
                                             modifier = Modifier
                                                 .width(150.dp),

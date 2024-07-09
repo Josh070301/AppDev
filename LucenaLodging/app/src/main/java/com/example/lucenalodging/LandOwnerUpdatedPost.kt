@@ -46,15 +46,31 @@ import androidx.navigation.NavController
 import androidx.navigation.NavHost
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 @Composable
-fun LandOwnerUpdatedPost(navController: NavHostController, userName : String){
+fun LandOwnerUpdatedPost(navController: NavHostController, auth :FirebaseAuth, db : FirebaseFirestore){
+    val uid = auth.currentUser?.uid
+    var fullName by remember{
+        mutableStateOf("")
+    }
+    if (uid != null){
+        db.collection("LandLords").document(uid)
+            .get()
+            .addOnSuccessListener { document ->
+                if (document != null){
+                    val FullNameFromDB = document.getString("fullName")
+                    fullName = FullNameFromDB.toString()
+                }
+            }
+    }
     Surface (
         modifier = Modifier
             .fillMaxSize(),
         color = Color(color = 0xFFFDF7E4)
     ) {
-        BottomMenu(navController, userName, usage = "Browse Post", userType = "LandOwner")
+        BottomMenu(navController, fullName, usage = "Browse Post", userType = "LandOwner")
         Row( // Column for the surface
             modifier = Modifier
                 .fillMaxSize()
@@ -97,7 +113,7 @@ fun LandOwnerUpdatedPost(navController: NavHostController, userName : String){
                             )
                             OutlinedButton(
                                 onClick = {
-                                    navController.navigate("LandOwnerBrowsePost?userName=$userName")
+                                    navController.navigate("LandOwnerBrowsePost")
                                 },//soon navigates
                                 colors = ButtonDefaults.buttonColors(containerColor = Color(color = 0xFFF2B398)),
                                 modifier = Modifier

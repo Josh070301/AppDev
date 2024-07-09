@@ -234,15 +234,31 @@ fun LoginAsLandOwner(navController : NavHostController, auth: FirebaseAuth, db: 
                     ){
                         Button(
                             onClick = {
-                                if (email != "" || password != ""){
+                                email = email.trim()
+                                password = password.trim()
+                                if (email != "" && password != ""){
                                     auth.signInWithEmailAndPassword(email, password)
-                                        .addOnCompleteListener {
-                                            if (it.isSuccessful){
-                                                navController.navigate("LandOwnerBrowsePost?email=$email")
+                                        .addOnSuccessListener { //if its in firebase and successful
+                                            val uid = auth.currentUser?.uid
+                                            if (uid != null){
+                                                db.collection("Users").document(uid)
+                                                    .get()
+                                                    .addOnSuccessListener { doc ->
+                                                        if (doc != null){
+                                                            val userType = doc.getString("userType")
+                                                            if (userType == "Landlord"){ //userType in firestore
+                                                                navController.navigate("LandOwnerBrowsePost?email=$email")
+                                                            }
+                                                            else{
+                                                                warn = "account is not a Landlord type" //returns in warning that account is not a landlord type
+                                                                auth.signOut() //signs out the auth login attempt
+                                                            }
+                                                        }
+                                                    }
                                             }
-                                            else{
-                                                warn = "Invalid login credentials"
-                                            }
+                                        }
+                                        .addOnFailureListener { //if email sign in with password is not successful
+                                            warn = "Invalid Login credentials"
                                         }
                                 }
                                 else{
@@ -305,9 +321,6 @@ fun LandOwnerCreateAccount(navController: NavHostController, auth: FirebaseAuth,
         mutableStateOf("")
     }
     var warn by remember {
-        mutableStateOf("")
-    }
-    var test by remember {
         mutableStateOf("")
     }
     Surface (
@@ -399,7 +412,6 @@ fun LandOwnerCreateAccount(navController: NavHostController, auth: FirebaseAuth,
                                         label = { Text("Email", color = Color.Gray) },
                                     )
                                     Text(text = "$warn")
-                                    Text(text="$test")
                                     Spacer(modifier = Modifier.height(20.dp))
                                     Text(text = "Full Name",
                                         fontSize = 17.sp,
@@ -462,28 +474,26 @@ fun LandOwnerCreateAccount(navController: NavHostController, auth: FirebaseAuth,
                                         onClick = {
                                             if (newPassword.length > 7 && newPassword == confirmedPassword){
                                                 auth.createUserWithEmailAndPassword(email, newPassword) //firebase create
-                                                    .addOnCompleteListener {
-                                                        if (it.isSuccessful){
-                                                            val user = auth.currentUser
-                                                            val uid = user?.uid //stores additional info in firestore
+                                                    .addOnSuccessListener {
+                                                        val user = auth.currentUser
+                                                        val uid = user?.uid //stores additional info in firestore
 
-                                                            if (uid != null){
-                                                                val userMap = hashMapOf(
-                                                                    "fullName" to fullName,
-                                                                    "email" to email,
-                                                                    "userType" to "Landlord"
-                                                                )
-                                                                db.collection("LandLords").document(uid)
-                                                                    .set(userMap)
-                                                                    .addOnSuccessListener {
-                                                                        navController.navigate("LandOwnerCreateAccountSuccess")
-                                                                    }
-                                                            }
-                                                        }
-                                                        else{
-                                                            warn = "Invalid/Email taken"
+                                                        if (uid != null){
+                                                            val userMap = hashMapOf(
+                                                                "fullName" to fullName,
+                                                                "email" to email,
+                                                                "userType" to "Landlord"
+                                                            )
+                                                            db.collection("Users").document(uid)
+                                                                .set(userMap)
+                                                                .addOnSuccessListener {
+                                                                    navController.navigate("LandOwnerCreateAccountSuccess")
+                                                                }
                                                         }
                                                     }
+                                                    .addOnFailureListener {
+                                                    warn = "Email Already Taken"
+                                                }
                                                 }
                                             }
                                         ,
@@ -753,7 +763,7 @@ fun LandOwnerReset(navController: NavHostController){
     }
 }
 @Composable
-fun LandOwnerResetPassword(navController: NavHostController, userName : String, fullName : String){
+fun LandOwnerResetPassword(navController: NavHostController, auth : FirebaseAuth, db : FirebaseFirestore){
     var newPassword by remember {
         mutableStateOf("")
     }
@@ -874,7 +884,7 @@ fun LandOwnerResetPassword(navController: NavHostController, userName : String, 
                                     Button(
                                         onClick = {
                                             if (newPassword.length > 7 && newPassword == confirmedPassword){
-                                                navController.navigate("LandOwnerResetSuccess?userName=$userName&fullName=$fullName&password=$newPassword")
+                                                navController.navigate("LandOwnerResetSuccess")
                                             }
                                         },
                                         modifier = Modifier
@@ -903,7 +913,7 @@ fun LandOwnerResetPassword(navController: NavHostController, userName : String, 
     }
 }
 @Composable
-fun LandOwnerResetSuccess(navController: NavHostController, userName : String, fullName : String, password : String){
+fun LandOwnerResetSuccess(navController: NavHostController){
     Surface (
         modifier = Modifier
             .fillMaxSize(),

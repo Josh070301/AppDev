@@ -36,9 +36,25 @@ import androidx.navigation.compose.rememberNavController
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.style.TextAlign
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 @Composable
-fun LandOwnerSingleMessages(navController: NavHostController, userName : String){
+fun LandOwnerSingleMessages(navController: NavHostController, auth : FirebaseAuth, db : FirebaseFirestore){
+    val uid = auth.currentUser?.uid
+    var fullName by remember{
+        mutableStateOf("")
+    }
+    if (uid != null){
+        db.collection("LandLords").document(uid)
+            .get()
+            .addOnSuccessListener { document ->
+                if (document != null){
+                    val FullNameFromDB = document.getString("fullName")
+                    fullName = FullNameFromDB.toString()
+                }
+            }
+    }
     var chatInput by remember {
         mutableStateOf("")
     }
@@ -50,7 +66,7 @@ fun LandOwnerSingleMessages(navController: NavHostController, userName : String)
     ) {
         BottomMenu(
             navController,
-            userName,
+            fullName,
             usage = "Messages",
             userType = "LandOwner"
         )//scaffold on ScaffoldAndEtc.kt
@@ -85,7 +101,7 @@ fun LandOwnerSingleMessages(navController: NavHostController, userName : String)
                             .weight(1f),
                         verticalAlignment = Alignment.CenterVertically
                     ){
-                        BackImage(navController = navController, backTo = "LandOwnerMessages?userName=$userName")
+                        BackImage(navController = navController, backTo = "LandOwnerMessages")
                         Spacer(modifier = Modifier.width(20.dp))
                         Image(painter = painterResource(id = R.drawable.icons8_profile_picture_90),
                             contentDescription ="Profile Picture",

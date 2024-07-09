@@ -36,231 +36,55 @@ fun AppNavigator(auth: FirebaseAuth, db : FirebaseFirestore){
         composable(route = "LandOwnerReset"){
             LandOwnerReset(navController)
         }
-        composable(route = "LandOwnerResetPassword?userName={userName}&fullName={fullName}",
-            arguments = listOf(
-                navArgument(
-                    name = "userName"
-                ){
-                    type = NavType.StringType
-                },
-                navArgument(
-                    name = "fullName"
-                ){
-                    type = NavType.StringType
-                }
-            )
-        ){
-                backstackEntry ->
-            LandOwnerResetPassword(navController = navController,
-                userName = backstackEntry.arguments?.getString("userName") ?:"",
-                fullName = backstackEntry.arguments?.getString("fullName") ?:"")//returns default string if this variable returned null
+        composable(route = "LandOwnerResetPassword"){
+            LandOwnerResetPassword(navController, auth, db)//returns default string if this variable returned null
         }
-        composable(route = "LandOwnerResetSuccess?userName={userName}&fullName={fullName}&password={newPassword}",
-            arguments = listOf(
-                navArgument(
-                    name = "userName"
-                ){
-                    type = NavType.StringType
-                },
-                navArgument(
-                    name = "fullName"
-                ){
-                    type = NavType.StringType
-                },
-                navArgument(
-                    name = "newPassword"
-                ){
-                    type = NavType.StringType
-                }
-            )
-        ){
-                backstackEntry ->
-            LandOwnerResetSuccess(navController = navController,
-                userName = backstackEntry.arguments?.getString("userName") ?:"",
-                fullName = backstackEntry.arguments?.getString("fullName") ?:"",
-                password = backstackEntry.arguments?.getString("newPassword") ?:"")//returns default string if this variable returned null
+        composable(route = "LandOwnerResetSuccess"){
+            LandOwnerResetSuccess(navController)
         }
-        composable(route = "LandOwnerBrowsePost?email={email}",
-            arguments = listOf(
-                navArgument(
-                    name = "email"
-                ){
-                    type = NavType.StringType
-                }
-            )
-        ){
-            backstackEntry ->
-                WelcomeLandOwner(navController = navController,
-                    email = backstackEntry.arguments?.getString("email") ?:"", auth, db)//returns default string if this variable returned null
+        composable(route = "LandOwnerBrowsePost"){
+            WelcomeLandOwner(navController, auth, db)
         }
-        composable(route = "LandOwnerMessages?userName={userName}",
-            arguments = listOf(
-                navArgument(
-                    name = "userName"
-                ){
-                    type = NavType.StringType
-                }
-            )
-        ){
-                backstackEntry ->
-                    LandOwnerMessages(navController = navController,
-                       userName = backstackEntry.arguments?.getString("userName") ?:"")//returns default string if this variable returned null
+
+        composable(route = "LandOwnerMessages"){
+                    LandOwnerMessages(navController, auth, db)}
+        composable(route = "LandOwnerPost"){
+            LandOwnerCreate(navController, auth, db)
         }
-        composable(route = "LandOwnerPost?userName={userName}",
-            arguments = listOf(
-                navArgument(
-                    name = "userName"
-                ){
-                    type = NavType.StringType
-                }
-            )
-        ){
-                backstackEntry ->
-            LandOwnerCreate(navController = navController,
-                userName = backstackEntry.arguments?.getString("userName") ?:"")//returns default string if this variable returned null
+        composable(route = "LandOwnerUserProfile"){
+            LandOwnerProfile(navController, auth, db)
         }
-        composable(route = "LandOwnerUserProfile?userName={userName}",
-            arguments = listOf(
-                navArgument(
-                    name = "userName"
-                ){
-                    type = NavType.StringType
-                }
+        composable(route = "LandOwnerSettings") {
+            LandOwnerSettings(
+                navController = navController, auth, db
             )
-        ){
-                backstackEntry ->
-            LandOwnerProfile(navController = navController,
-                userName = backstackEntry.arguments?.getString("userName") ?:"")//returns default string if this variable returned null
         }
-        composable(route = "LandOwnerSettings?userName={userName}",
-            arguments = listOf(
-                navArgument(
-                    name = "userName"
-                ){
-                    type = NavType.StringType
-                }
-            )
-        ){
-                backstackEntry ->
-            LandOwnerSettings(navController = navController,
-                userName = backstackEntry.arguments?.getString("userName") ?:"")//returns default string if this variable returned null
+        composable(route = "LandOwnerEditPost"){
+            LandOwnerEditPost(navController, auth, db)
         }
-        composable(route = "LandOwnerEditPost?email={email}",
-            arguments = listOf(
-                navArgument(
-                    name = "email"
-                ){
-                    type = NavType.StringType
-                }
-            )
-        ){
-                backstackEntry ->
-            LandOwnerEditPost(navController = navController,
-                email = backstackEntry.arguments?.getString("userName") ?:"")//returns default string if this variable returned null
+        composable(route = "LandOwnerUpdate") {
+            LandOwnerUpdate(navController = navController, auth, db)
+        }//returns default string if this variable returned null
+        composable(route = "LandOwnerUpdatedPost"){
+            LandOwnerUpdatedPost(navController, auth, db)
         }
-        composable(route = "LandOwnerUpdate?email={email}",
-            arguments = listOf(
-                navArgument(
-                    name = "userName"
-                ){
-                    type = NavType.StringType
-                }
-            )
-        ){
-                backstackEntry ->
-            LandOwnerUpdate(navController = navController,
-                userName = backstackEntry.arguments?.getString("userName") ?:"")//returns default string if this variable returned null
+        composable(route = "LandOwnerDelete"){
+            LandOwnerDelete(navController, auth, db)
         }
-        composable(route = "LandOwnerUpdatedPost?userName={userName}",
-            arguments = listOf(
-                navArgument(
-                    name = "userName"
-                ){
-                    type = NavType.StringType
-                }
-            )
-        ){
-                backstackEntry ->
-            LandOwnerUpdatedPost(navController = navController,
-                userName = backstackEntry.arguments?.getString("userName") ?:"")//returns default string if this variable returned null
+        composable(route = "LandOwnerSingleMessages"){
+            LandOwnerSingleMessages(navController, auth, db)
         }
-        composable(route = "LandOwnerDelete?userName={userName}",
-            arguments = listOf(
-                navArgument(
-                    name = "userName"
-                ){
-                    type = NavType.StringType
-                }
-            )
-        ){
-                backstackEntry ->
-            LandOwnerDelete(navController = navController,
-                userName = backstackEntry.arguments?.getString("userName") ?:"")//returns default string if this variable returned null
+        composable(route = "LandOwnerCreatedPost"){
+            LandOwnerCreatedPost(navController, auth, db)
         }
-        composable(route = "LandOwnerSingleMessages?userName={userName}",
-            arguments = listOf(
-                navArgument(
-                    name = "userName"
-                ){
-                    type = NavType.StringType
-                }
-            )
-        ){
-                backstackEntry ->
-            LandOwnerSingleMessages(navController = navController,
-                userName = backstackEntry.arguments?.getString("userName") ?:"")//returns default string if this variable returned null
+        composable(route = "LandOwnerChangePassword"){
+            LandOwnerChangePassword(navController, auth, db)
         }
-        composable(route = "LandOwnerCreatedPost?userName={userName}",
-            arguments = listOf(
-                navArgument(
-                    name = "userName"
-                ){
-                    type = NavType.StringType
-                }
-            )
-        ){
-                backstackEntry ->
-            LandOwnerCreatedPost(navController = navController,
-                userName = backstackEntry.arguments?.getString("userName") ?:"")//returns default string if this variable returned null
+        composable(route = "LandOwnerConfirmedPassword"){
+            LandOwnerConfirmedPassword(navController, auth, db)
         }
-        composable(route = "LandOwnerChangePassword?userName={userName}", //reset password logged in
-            arguments = listOf(
-                navArgument(
-                    name = "userName"
-                ){
-                    type = NavType.StringType
-                }
-            )
-        ){
-                backstackEntry ->
-            LandOwnerChangePassword(navController = navController,
-                userName = backstackEntry.arguments?.getString("userName") ?:"")//returns default string if this variable returned null
-        }
-        composable(route = "LandOwnerConfirmedPassword?userName={userName}",
-            arguments = listOf(
-                navArgument(
-                    name = "userName"
-                ){
-                    type = NavType.StringType
-                }
-            )
-        ){
-                backstackEntry ->
-            LandOwnerConfirmedPassword(navController = navController,
-                userName = backstackEntry.arguments?.getString("userName") ?:"")//returns default string if this variable returned null
-        }
-        composable(route = "LandOwnerChangedPasswordSuccess?userName={userName}",
-            arguments = listOf(
-                navArgument(
-                    name = "userName"
-                ){
-                    type = NavType.StringType
-                }
-            )
-        ){
-                backstackEntry ->
-            LandOwnerChangedPasswordSuccess(navController = navController,
-                userName = backstackEntry.arguments?.getString("userName") ?:"")//returns default string if this variable returned null
+        composable(route = "LandOwnerChangedPasswordSuccess"){
+            LandOwnerChangedPasswordSuccess(navController, auth, db)
         }
 
         //Start of tenant routes
@@ -268,51 +92,10 @@ fun AppNavigator(auth: FirebaseAuth, db : FirebaseFirestore){
             LoginAsTenant(navController)
         }
         composable(route = "TenantCreateAccount"){
-            TenantCreateAccount(navController)
+            TenantCreateAccount(navController, auth, db)
         }
-        composable(route = "TenantCreatePassword?userName={userName}&fullName={fullName}",
-            arguments = listOf(
-                navArgument(
-                    name = "userName"
-                ){
-                    type = NavType.StringType
-                },
-                navArgument(
-                    name = "fullName"
-                ){
-                    type = NavType.StringType
-                }
-            )
-        ){
-                backstackEntry ->
-            LoginAsTenantCreatePassword(navController = navController,
-                userName = backstackEntry.arguments?.getString("userName") ?:"",
-                fullName = backstackEntry.arguments?.getString("fullName") ?:"")//returns default string if this variable returned null
-        }
-        composable(route = "TenantCreateAccountSuccess?userName={userName}&fullName={fullName}&password={newPassword}",
-            arguments = listOf(
-                navArgument(
-                    name = "userName"
-                ){
-                    type = NavType.StringType
-                },
-                navArgument(
-                    name = "fullName"
-                ){
-                    type = NavType.StringType
-                },
-                navArgument(
-                    name = "newPassword"
-                ){
-                    type = NavType.StringType
-                }
-            )
-        ){
-                backstackEntry ->
-            TenantCreateAccountSuccess(navController = navController,
-                userName = backstackEntry.arguments?.getString("userName") ?:"",
-                fullName = backstackEntry.arguments?.getString("fullName") ?:"",
-                password = backstackEntry.arguments?.getString("newPassword") ?:"")//returns default string if this variable returned null
+        composable(route = "TenantCreateAccountSuccess") {
+            TenantCreateAccountSuccess(navController, auth, db)
         }
         composable(route = "TenantReset"){
             TenantReset(navController)

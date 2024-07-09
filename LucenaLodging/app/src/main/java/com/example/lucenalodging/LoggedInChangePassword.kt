@@ -39,9 +39,25 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.style.TextAlign
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 @Composable
-fun LandOwnerChangePassword(navController: NavHostController, userName : String){
+fun LandOwnerChangePassword(navController: NavHostController, auth: FirebaseAuth, db : FirebaseFirestore){
+    val uid = auth.currentUser?.uid
+    var fullName by remember{
+        mutableStateOf("")
+    }
+    if (uid != null){
+        db.collection("LandLords").document(uid)
+            .get()
+            .addOnSuccessListener { document ->
+                if (document != null){
+                    val FullNameFromDB = document.getString("fullName")
+                    fullName = FullNameFromDB.toString()
+                }
+            }
+    }
     var oldPassword by remember {
         mutableStateOf("")
     }
@@ -50,7 +66,7 @@ fun LandOwnerChangePassword(navController: NavHostController, userName : String)
             .fillMaxSize(),
         color = Color(color = 0xFFFDF7E4)
     ) {
-        BottomMenu(navController,userName, usage = "Settings", userType = "LandOwner")//scaffold on ScaffoldAndEtc.kt
+        BottomMenu(navController,fullName, usage = "Settings", userType = "LandOwner")//scaffold on ScaffoldAndEtc.kt
         Row ( // Column for the surface
             modifier = Modifier
                 .fillMaxSize()
@@ -83,7 +99,7 @@ fun LandOwnerChangePassword(navController: NavHostController, userName : String)
                                 .fillMaxWidth(),
                             verticalAlignment = Alignment.CenterVertically
                         ){
-                            BackImage(navController = navController, backTo ="LandOwnerSettings?userName=$userName" )
+                            BackImage(navController = navController, backTo ="LandOwnerSettings" )
                         }
                     }
                     MainSpacer()// at ScaffoldAndEtc.kt
@@ -125,7 +141,7 @@ fun LandOwnerChangePassword(navController: NavHostController, userName : String)
                             Spacer(modifier = Modifier.height(50.dp))
                             Button(
                                 onClick = {
-                                    navController.navigate("LandOwnerConfirmedPassword?userName=$userName")
+                                    navController.navigate("LandOwnerConfirmedPassword")
                                 },
                                 modifier = Modifier
                                     .size(width = 150.dp, height = 45.dp)
@@ -152,7 +168,21 @@ fun LandOwnerChangePassword(navController: NavHostController, userName : String)
 }
 
 @Composable
-fun LandOwnerConfirmedPassword(navController: NavHostController, userName : String){
+fun LandOwnerConfirmedPassword(navController: NavHostController, auth: FirebaseAuth, db: FirebaseFirestore){
+    val uid = auth.currentUser?.uid
+    var fullName by remember{
+        mutableStateOf("")
+    }
+    if (uid != null){
+        db.collection("LandLords").document(uid)
+            .get()
+            .addOnSuccessListener { document ->
+                if (document != null){
+                    val FullNameFromDB = document.getString("fullName")
+                    fullName = FullNameFromDB.toString()
+                }
+            }
+    }
     var newPassword by remember {
         mutableStateOf("")
     }
@@ -164,7 +194,7 @@ fun LandOwnerConfirmedPassword(navController: NavHostController, userName : Stri
             .fillMaxSize(),
         color = Color(color = 0xFFFDF7E4)
     ) {
-        BottomMenu(navController,userName, usage = "Settings", userType = "LandOwner")//scaffold on ScaffoldAndEtc.kt
+        BottomMenu(navController,fullName, usage = "Settings", userType = "LandOwner")//scaffold on ScaffoldAndEtc.kt
         Row ( // Column for the surface
             modifier = Modifier
                 .fillMaxSize()
@@ -197,7 +227,7 @@ fun LandOwnerConfirmedPassword(navController: NavHostController, userName : Stri
                                 .fillMaxWidth(),
                             verticalAlignment = Alignment.CenterVertically
                         ){
-                            BackImage(navController = navController, backTo ="LandOwnerSettings?userName=$userName" )
+                            BackImage(navController = navController, backTo ="LandOwnerSettings" )
                         }
                     }
                     MainSpacer()// at ScaffoldAndEtc.kt
@@ -271,7 +301,7 @@ fun LandOwnerConfirmedPassword(navController: NavHostController, userName : Stri
                             ){
                                 Button(
                                     onClick = {
-                                        navController.navigate("LandOwnerChangedPasswordSuccess?userName=$userName")
+                                        navController.navigate("LandOwnerChangedPasswordSuccess")
                                     },
                                     modifier = Modifier
                                         .size(width = 150.dp, height = 45.dp)
@@ -298,13 +328,27 @@ fun LandOwnerConfirmedPassword(navController: NavHostController, userName : Stri
     }
 }
 @Composable
-fun LandOwnerChangedPasswordSuccess(navController: NavHostController, userName : String){
+fun LandOwnerChangedPasswordSuccess(navController: NavHostController, auth: FirebaseAuth, db: FirebaseFirestore){
+    val uid = auth.currentUser?.uid
+    var fullName by remember{
+        mutableStateOf("")
+    }
+    if (uid != null){
+        db.collection("LandLords").document(uid)
+            .get()
+            .addOnSuccessListener { document ->
+                if (document != null){
+                    val FullNameFromDB = document.getString("fullName")
+                    fullName = FullNameFromDB.toString()
+                }
+            }
+    }
     Surface (
         modifier = Modifier
             .fillMaxSize(),
         color = Color(color = 0xFFFDF7E4)
     ) {
-        BottomMenu(navController, userName, usage = "Settings", userType = "LandOwner")
+        BottomMenu(navController, fullName, usage = "Settings", userType = "LandOwner")
         Row( // Column for the surface
             modifier = Modifier
                 .fillMaxSize()
@@ -368,7 +412,7 @@ fun LandOwnerChangedPasswordSuccess(navController: NavHostController, userName :
                             )
                             OutlinedButton(
                                 onClick = {
-                                    navController.navigate("LandOwnerSettings?userName=$userName")
+                                    navController.navigate("LandOwnerSettings")
                                 },//soon navigates
                                 colors = ButtonDefaults.buttonColors(containerColor = Color(color = 0xFFF2B398)),
                                 modifier = Modifier

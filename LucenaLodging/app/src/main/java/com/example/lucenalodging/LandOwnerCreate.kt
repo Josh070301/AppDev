@@ -45,10 +45,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.core.text.isDigitsOnly
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.selects.select
 
 @Composable
-fun LandOwnerCreate(navController: NavHostController, userName : String){
+fun LandOwnerCreate(navController: NavHostController, auth: FirebaseAuth, db : FirebaseFirestore){
     var selectRoomTitle by remember {
         mutableStateOf("")
     }
@@ -82,12 +84,26 @@ fun LandOwnerCreate(navController: NavHostController, userName : String){
     var price by remember {
         mutableStateOf("")
     }
+    val uid = auth.currentUser?.uid
+    var fullName by remember{
+        mutableStateOf("")
+    }
+    if (uid != null){
+        db.collection("LandLords").document(uid)
+            .get()
+            .addOnSuccessListener { document ->
+                if (document != null){
+                    val FullNameFromDB = document.getString("fullName")
+                    fullName = FullNameFromDB.toString()
+                }
+            }
+    }
     Surface (
         modifier = Modifier
             .fillMaxSize(),
         color = Color(color = 0xFFFDF7E4)
     ) {
-        BottomMenu(navController,userName, usage = "Post", userType = "LandOwner")//scaffold on ScaffoldAndEtc.kt
+        BottomMenu(navController,fullName, usage = "Post", userType = "LandOwner")//scaffold on ScaffoldAndEtc.kt
         Row ( // Column for the surface
             modifier = Modifier
                 .fillMaxSize()
@@ -467,7 +483,7 @@ fun LandOwnerCreate(navController: NavHostController, userName : String){
                             ){
                                 OutlinedButton(
                                     onClick = {
-                                              navController.navigate("LandOwnerCreatedPost?userName=$userName")
+                                              navController.navigate("LandOwnerCreatedPost")
                                     },//soon navigates
                                     colors = ButtonDefaults.buttonColors(containerColor = Color(color = 0xFFF2B398)),
                                     modifier = Modifier
@@ -485,13 +501,27 @@ fun LandOwnerCreate(navController: NavHostController, userName : String){
 }
 
 @Composable
-fun LandOwnerCreatedPost(navController: NavHostController, userName : String){
+fun LandOwnerCreatedPost(navController: NavHostController, auth: FirebaseAuth, db : FirebaseFirestore){
+    val uid = auth.currentUser?.uid
+    var fullName by remember{
+        mutableStateOf("")
+    }
+    if (uid != null){
+        db.collection("LandLords").document(uid)
+            .get()
+            .addOnSuccessListener { document ->
+                if (document != null){
+                    val FullNameFromDB = document.getString("fullName")
+                    fullName = FullNameFromDB.toString()
+                }
+            }
+    }
     Surface (
         modifier = Modifier
             .fillMaxSize(),
         color = Color(color = 0xFFFDF7E4)
     ) {
-        BottomMenu(navController, userName, usage = "Post", userType = "LandOwner")
+        BottomMenu(navController, fullName, usage = "Post", userType = "LandOwner")
         Row( // Column for the surface
             modifier = Modifier
                 .fillMaxSize()
@@ -555,7 +585,7 @@ fun LandOwnerCreatedPost(navController: NavHostController, userName : String){
                             )
                             OutlinedButton(
                                 onClick = {
-                                    navController.navigate("LandOwnerBrowsePost?userName=$userName")
+                                    navController.navigate("LandOwnerBrowsePost")
                                 },//soon navigates
                                 colors = ButtonDefaults.buttonColors(containerColor = Color(color = 0xFFF2B398)),
                                 modifier = Modifier
