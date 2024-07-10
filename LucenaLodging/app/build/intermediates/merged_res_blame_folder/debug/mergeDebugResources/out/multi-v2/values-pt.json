@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.lucenalodging.app-mergeDebugResources-58:/values-pt/values-pt.xml",
+            "outputFile": "com.example.lucenalodging.app-mergeDebugResources-60:/values-pt/values-pt.xml",
             "map": [
                 {
                     "source": "C:\\Users\\ADMIN\\.gradle\\caches\\transforms-4\\bb6d63862f20bb39a9cd7263324141f3\\transformed\\browser-1.4.0\\res\\values-pt\\values-pt.xml",

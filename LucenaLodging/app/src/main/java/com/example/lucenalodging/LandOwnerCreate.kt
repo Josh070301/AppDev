@@ -1,8 +1,12 @@
 package com.example.lucenalodging
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -11,8 +15,15 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -45,7 +56,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.core.text.isDigitsOnly
+import coil.compose.rememberAsyncImagePainter
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.selects.select
 
@@ -84,17 +97,30 @@ fun LandOwnerCreate(navController: NavHostController, auth: FirebaseAuth, db : F
     var price by remember {
         mutableStateOf("")
     }
-    val uid = auth.currentUser?.uid
+    var selectImages by remember { //app local storage of selected images
+        mutableStateOf<List<Uri>>(emptyList()) //list
+    }
+    val galleryLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetMultipleContents(),
+        onResult = { uri ->
+                selectImages = uri
+        }
+    )
     var fullName by remember{
         mutableStateOf("")
     }
+
+    var email by remember{
+        mutableStateOf("")
+    }
+    val uid = auth.currentUser?.uid //currentUserID
     if (uid != null){
-        db.collection("LandLords").document(uid)
+        db.collection("Users").document(uid)
             .get()
             .addOnSuccessListener { document ->
                 if (document != null){
-                    val FullNameFromDB = document.getString("fullName")
-                    fullName = FullNameFromDB.toString()
+                    fullName = document.getString("fullName").toString()
+                    email = document.getString("email").toString()
                 }
             }
     }
@@ -103,7 +129,7 @@ fun LandOwnerCreate(navController: NavHostController, auth: FirebaseAuth, db : F
             .fillMaxSize(),
         color = Color(color = 0xFFFDF7E4)
     ) {
-        BottomMenu(navController,fullName, usage = "Post", userType = "LandOwner")//scaffold on ScaffoldAndEtc.kt
+        BottomMenu(navController,email, usage = "Post", userType = "LandOwner")//scaffold on ScaffoldAndEtc.kt
         Row ( // Column for the surface
             modifier = Modifier
                 .fillMaxSize()
@@ -174,35 +200,53 @@ fun LandOwnerCreate(navController: NavHostController, auth: FirebaseAuth, db : F
                                 ){
                                     Text(text = "Select File From Gallery", //needs function to upload image soon
                                         textDecoration = TextDecoration.Underline,
-                                        color = Color.Blue
+                                        color = Color.Blue,
+                                        modifier = Modifier
+                                            .clickable(
+                                                onClick = {
+                                                    galleryLauncher.launch("image/*")
+                                                },
+                                            )
+                                            .wrapContentSize()
+                                            .padding(10.dp)
                                     )
                                     Image(painter = painterResource(id = R.drawable.icons8_image_file_30),
                                         contentDescription = "Upload Image",
                                         modifier = Modifier
                                             .width(50.dp)
                                             .height(30.dp)
+                                            .clickable(
+                                                onClick = {
+                                                    galleryLauncher.launch("image/*")
+                                                },
+                                            )
                                     )
                                 }
                                 Spacer(modifier = Modifier.height(10.dp))
                                 Row (
                                     modifier = Modifier
-                                        .width(250.dp)
+                                        .fillMaxWidth()
                                         .height(150.dp)
-                                        .clip(RoundedCornerShape(20.dp))
-                                        .background(color = Color(color = 0xFFFAFAFA))
-                                        .border(
-                                            1.dp,
-                                            Color.Black,
-                                            shape = RoundedCornerShape(20.dp)
-                                        ),
+                                        .clip(RoundedCornerShape(20.dp)),
                                     verticalAlignment = Alignment.CenterVertically
                                 ){
-                                    Column (
-                                        modifier = Modifier
-                                            .fillMaxWidth(),
-                                        horizontalAlignment = Alignment.CenterHorizontally
-                                    ){
-                                        Text(text = "Images will appear here")
+                                    Row {
+                                        repeat(selectImages.size) { index -> //loops in the list depending on its count
+                                            Row (
+                                                modifier = Modifier
+                                                    .fillMaxSize()
+                                                    .weight(1f)
+                                            ){
+                                                Image(
+                                                    painter = rememberAsyncImagePainter(
+                                                        model = selectImages[index]
+                                                    ),
+                                                    contentDescription = null,
+                                                    modifier = Modifier
+                                                        .fillMaxSize()
+                                                )
+                                            }
+                                        }
                                     }
                                 }
                                 Spacer(modifier = Modifier.height(5.dp))
@@ -483,7 +527,29 @@ fun LandOwnerCreate(navController: NavHostController, auth: FirebaseAuth, db : F
                             ){
                                 OutlinedButton(
                                     onClick = {
-                                              navController.navigate("LandOwnerCreatedPost")
+                                        val user = auth.currentUser
+                                        val uid = user?.uid //stores additional info in firestore
+                                        if (uid != null){
+                                            val userMap = hashMapOf(
+                                                "email" to email,
+                                                "roomTitle" to selectRoomTitle,
+                                                "location" to location,
+                                                "curfew" to curfew,
+                                                "roomIncludes" to roomIncludes,
+                                                "peopleCount" to peopleCount,
+                                                "oneMonthAdvance" to oneMonthAdvance,
+                                                "oneMonthDeposit" to oneMonthDeposit,
+                                                "anyID" to anyID,
+                                                "available" to available,
+                                                "price" to price,
+                                                "images" to selectImages,
+                                            )
+                                            db.collection("Users").document(uid).collection("Posts")
+                                                .add(userMap)
+                                                .addOnSuccessListener {
+                                                    navController.navigate("LandOwnerCreatedPost")
+                                                }
+                                        }
                                     },//soon navigates
                                     colors = ButtonDefaults.buttonColors(containerColor = Color(color = 0xFFF2B398)),
                                     modifier = Modifier
@@ -601,3 +667,8 @@ fun LandOwnerCreatedPost(navController: NavHostController, auth: FirebaseAuth, d
     }
 }
 
+
+@Preview
+@Composable
+fun PreviewThis(){
+}

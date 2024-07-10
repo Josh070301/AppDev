@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.lucenalodging.app-mergeDebugResources-58:/values-watch-v20/values-watch-v20.xml",
+            "outputFile": "com.example.lucenalodging.app-mergeDebugResources-60:/values-watch-v20/values-watch-v20.xml",
             "map": [
                 {
                     "source": "C:\\Users\\ADMIN\\.gradle\\caches\\transforms-4\\0ed812aebe7e5613d3eea415a8ec82a0\\transformed\\play-services-auth-20.7.0\\res\\values-watch-v20\\values.xml",

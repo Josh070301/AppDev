@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.lucenalodging.app-mergeDebugResources-58:/values-v21/values-v21.xml",
+            "outputFile": "com.example.lucenalodging.app-mergeDebugResources-60:/values-v21/values-v21.xml",
             "map": [
                 {
                     "source": "C:\\Users\\ADMIN\\.gradle\\caches\\transforms-4\\07d2c14818b2573b4a15d8091883a682\\transformed\\credentials-play-services-auth-1.2.0-rc01\\res\\values-v21\\values-v21.xml",

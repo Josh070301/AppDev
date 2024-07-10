@@ -247,7 +247,7 @@ fun LoginAsLandOwner(navController : NavHostController, auth: FirebaseAuth, db: 
                                                         if (doc != null){
                                                             val userType = doc.getString("userType")
                                                             if (userType == "Landlord"){ //userType in firestore
-                                                                navController.navigate("LandOwnerBrowsePost?email=$email")
+                                                                navController.navigate("LandOwnerBrowsePost")
                                                             }
                                                             else{
                                                                 warn = "account is not a Landlord type" //returns in warning that account is not a landlord type

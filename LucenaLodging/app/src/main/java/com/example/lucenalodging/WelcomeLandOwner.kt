@@ -1,5 +1,6 @@
 package com.example.lucenalodging
 
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
@@ -14,6 +15,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -26,23 +28,45 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.core.net.toUri
+import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.Filter
+import com.google.firebase.firestore.toObject
+import kotlinx.coroutines.tasks.await
 
 @Composable
 fun WelcomeLandOwner(navController: NavHostController, auth: FirebaseAuth, db : FirebaseFirestore){
     val uid = auth.currentUser?.uid
-    var fullName by remember{
+    var fullName by remember {
         mutableStateOf("")
     }
-    if (uid != null){
-        db.collection("LandLords").document(uid)
+    data class Post(
+        val email : String,
+        val selectRoomTitle : String,
+        val location : String,
+        val curfew : String,
+        val roomIncludes : String,
+        val peopleCount : Int,
+        val oneMonthAdvance : Boolean,
+        val oneMonthDeposit : Boolean,
+        val anyID : Boolean,
+        val available : Boolean,
+        val price : String,
+        val selectImages : List<Uri>,
+    )
+    var warn by remember {
+        mutableStateOf("")
+    }
+    if (uid != null) {
+        db.collection("Users").document(uid)
             .get()
             .addOnSuccessListener { document ->
-                if (document != null){
-                    val FullNameFromDB = document.getString("fullName")
-                    fullName = FullNameFromDB.toString()
+                if (document != null) {
+                    fullName = document.getString("fullName").toString()
                 }
             }
     }
+    val postLists = mutableListOf<Post>()
     Surface (
         modifier = Modifier
             .fillMaxSize(),
@@ -72,14 +96,73 @@ fun WelcomeLandOwner(navController: NavHostController, auth: FirebaseAuth, db : 
                         .verticalScroll(rememberScrollState())
                 ) {
                     Text(
-                        text = "Your Posts",
+                        text = "Your Posts $fullName",
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier
                             .padding(start = 10.dp, top = 10.dp),
                     )
                     Spacer(modifier = Modifier.height(10.dp))
-                    repeat(10){
-                        userContent(navController,fullName,userType = "LandOwner") //calls user Content can be multiple dependin on count
+
+                    if (uid != null){
+                        db.collection("Users").document(uid).collection("Posts")
+                            .get()
+                            .addOnSuccessListener { doc ->
+                                for (document in doc.documents){
+                                    warn = "Double Success"
+                                    val email = document.getString("email") ?: ""
+                                    val selectRoomTitle = document.getString("roomTitle")?: ""
+                                    val location  = document.getString("location")?: ""
+                                    val curfew  = document.getString("curfew")?: ""
+                                    val roomIncludes  = document.getString("roomIncludes")?: ""
+                                    val peopleCount  = document.getLong("peopleCount") ?.toInt() ?: 0
+                                    val oneMonthAdvance  = document.getBoolean("oneMonthAdvance") ?: false
+                                    val oneMonthDeposit  = document.getBoolean("oneMonthDeposit") ?: false
+                                    val anyID  = document.getBoolean("anyID") ?: false
+                                    val available  = document.getBoolean("available") ?:false
+                                    val price  = document.getString("price") ?: ""
+                                    val selectImages = document.get("images") as? List<String> ?: emptyList()
+
+                                    val imagesList = selectImages.map { Uri.parse(it) } // converts string to Uri
+
+                                    val storagePost = Post(
+                                        email,
+                                        selectRoomTitle,
+                                        location, curfew,
+                                        roomIncludes, peopleCount,
+                                        oneMonthAdvance,
+                                        oneMonthDeposit,
+                                        anyID,
+                                        available,
+                                        price,
+                                        imagesList,
+                                    )
+                                    postLists.add(storagePost)
+                                }
+
+                            }
+                            .addOnFailureListener { e->
+                                warn = "Error getting data"
+                            }
+                        Text(text = "$postLists")
+                        Text(text = "$warn")
+                        postLists.forEachIndexed { index, num ->
+                            userContent(
+                                navController,
+                                fullName,
+                                userType = "LandOwner",
+                                postLists[index-1].anyID,
+                                postLists[index-1].available,
+                                postLists[index-1].curfew,
+                                postLists[index-1].selectImages,
+                                postLists[index-1].location,
+                                postLists[index-1].oneMonthAdvance,
+                                postLists[index-1].oneMonthDeposit,
+                                postLists[index-1].peopleCount,
+                                postLists[index-1].price,
+                                postLists[index-1].roomIncludes,
+                                postLists[index-1].selectRoomTitle
+                            )
+                        }
                     }
                 }
             }

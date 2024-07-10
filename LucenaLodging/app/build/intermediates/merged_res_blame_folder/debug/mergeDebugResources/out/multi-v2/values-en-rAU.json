@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.lucenalodging.app-mergeDebugResources-58:/values-en-rAU/values-en-rAU.xml",
+            "outputFile": "com.example.lucenalodging.app-mergeDebugResources-60:/values-en-rAU/values-en-rAU.xml",
             "map": [
                 {
                     "source": "C:\\Users\\ADMIN\\.gradle\\caches\\transforms-4\\1ead52f8244cc6a50108099bcfc767fc\\transformed\\core-1.13.1\\res\\values-en-rAU\\values-en-rAU.xml",

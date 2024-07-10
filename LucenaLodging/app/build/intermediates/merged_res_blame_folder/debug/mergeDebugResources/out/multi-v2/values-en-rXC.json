@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.lucenalodging.app-mergeDebugResources-58:/values-en-rXC/values-en-rXC.xml",
+            "outputFile": "com.example.lucenalodging.app-mergeDebugResources-60:/values-en-rXC/values-en-rXC.xml",
             "map": [
                 {
                     "source": "C:\\Users\\ADMIN\\.gradle\\caches\\transforms-4\\0f1b2bab14f642eab74b293dec57cbde\\transformed\\credentials-1.2.0-rc01\\res\\values-en-rXC\\values-en-rXC.xml",

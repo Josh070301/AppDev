@@ -84,7 +84,7 @@ fun WelcomeTenant(navController: NavHostController, userName : String){
                     Spacer(modifier = Modifier.height(10.dp))
                     repeat(10){
                         Spacer(modifier = Modifier.height(20.dp))
-                        userContent(navController,userName, userType = "Tenants") //calls user Content can be multiple dependin on count
+                        //userContent(navController,userName, userType = "Tenants") //calls user Content can be multiple dependin on count
                     }
                 }
             }
@@ -1159,10 +1159,4 @@ fun TenantChangedPasswordSuccess(navController: NavHostController, userName : St
             }
         }
     }
-}
-
-@Preview
-@Composable
-fun PreviewThis(){
-    TenantChangedPasswordSuccess(navController = rememberNavController(), userName = "Joshua")
 }

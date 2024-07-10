@@ -1,5 +1,6 @@
 package com.example.lucenalodging
 
+import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -40,6 +41,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import coil.compose.rememberAsyncImagePainter
 
 @Composable //used for topbar logged out tenant or landowner
 fun NotLoggedInTopBar(topBarValue : String){
@@ -242,7 +244,19 @@ fun messagesContent(navController: NavHostController, fullName: String , userTyp
 }
 
 @Composable
-fun userContent(navController: NavHostController,fullName : String, userType : String){
+fun userContent(navController: NavHostController,fullName : String, userType : String,
+                anyID : Boolean,
+                available : Boolean,
+                curfew : String,
+                responseImages : List<Uri>,
+                location : String,
+                oneMonthAdvance : Boolean,
+                oneMonthDeposit : Boolean,
+                peopleCount : Int,
+                price : String,
+                roomIncludes : String,
+                selectRoomTitle : String
+){
     var userName = ""
     if(userType == "LandOwner"){
         Spacer(modifier = Modifier.height(10.dp))
@@ -300,7 +314,12 @@ fun userContent(navController: NavHostController,fullName : String, userType : S
                         .fillMaxHeight(),
                     verticalAlignment = Alignment.CenterVertically
                 ){
-                    Text(text = "Images")
+                    for (pic in responseImages){
+                        Image(
+                            painter = rememberAsyncImagePainter(model = pic),
+                            contentDescription = "Images"
+                        )
+                    }
                 }
             }
             Spacer(modifier = Modifier.height(10.dp))
