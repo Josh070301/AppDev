@@ -60,7 +60,10 @@ import coil.compose.rememberAsyncImagePainter
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageReference
 import kotlinx.coroutines.selects.select
+import java.util.UUID
 
 @Composable
 fun LandOwnerCreate(navController: NavHostController, auth: FirebaseAuth, db : FirebaseFirestore){
@@ -529,9 +532,23 @@ fun LandOwnerCreate(navController: NavHostController, auth: FirebaseAuth, db : F
                                     onClick = {
                                         val user = auth.currentUser
                                         val uid = user?.uid //stores additional info in firestore
-                                        if (uid != null){
+                                        if (uid != null && selectRoomTitle !="" && location !="" && curfew !="" ){
+                                            val ref : StorageReference = FirebaseStorage.getInstance().getReference()
+                                            val randomImageID = mutableListOf<String>()
+                                            var x = 0
+                                            while( x < selectImages.size){
+                                                val newUUID = UUID.randomUUID()
+                                                val path = "imagesfor$email/$newUUID.jpg"
+                                                val uploadHere = ref.child(path)
+                                                uploadHere.putFile(selectImages[x]!!).addOnSuccessListener {
+                                                    navController.navigate("LandOwnerCreatedPost")
+                                                }
+                                                randomImageID.add(path)
+                                                x++
+                                            }
                                             val userMap = hashMapOf(
                                                 "email" to email,
+                                                "uid" to uid,
                                                 "roomTitle" to selectRoomTitle,
                                                 "location" to location,
                                                 "curfew" to curfew,
@@ -542,13 +559,10 @@ fun LandOwnerCreate(navController: NavHostController, auth: FirebaseAuth, db : F
                                                 "anyID" to anyID,
                                                 "available" to available,
                                                 "price" to price,
-                                                "images" to selectImages,
+                                                "images" to randomImageID,
                                             )
-                                            db.collection("Users").document(uid).collection("Posts")
+                                            db.collection("LandLordPost")
                                                 .add(userMap)
-                                                .addOnSuccessListener {
-                                                    navController.navigate("LandOwnerCreatedPost")
-                                                }
                                         }
                                     },//soon navigates
                                     colors = ButtonDefaults.buttonColors(containerColor = Color(color = 0xFFF2B398)),

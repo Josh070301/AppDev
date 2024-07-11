@@ -1,5 +1,6 @@
 package com.example.lucenalodging
 
+import android.graphics.BitmapFactory
 import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -14,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.BottomAppBar
@@ -24,6 +26,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,6 +35,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -42,6 +47,9 @@ import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberAsyncImagePainter
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageReference
+import kotlinx.coroutines.tasks.await
 
 @Composable //used for topbar logged out tenant or landowner
 fun NotLoggedInTopBar(topBarValue : String){
@@ -245,17 +253,20 @@ fun messagesContent(navController: NavHostController, fullName: String , userTyp
 
 @Composable
 fun userContent(navController: NavHostController,fullName : String, userType : String,
+                documentID : String,
                 anyID : Boolean,
                 available : Boolean,
                 curfew : String,
-                responseImages : List<Uri>,
+                responseImages : List<String>,
                 location : String,
                 oneMonthAdvance : Boolean,
                 oneMonthDeposit : Boolean,
                 peopleCount : Int,
                 price : String,
                 roomIncludes : String,
-                selectRoomTitle : String
+                selectRoomTitle : String,
+                email : String,
+                uid : String,
 ){
     var userName = ""
     if(userType == "LandOwner"){
@@ -311,14 +322,34 @@ fun userContent(navController: NavHostController,fullName : String, userType : S
             ){
                 Row (
                     modifier = Modifier
-                        .fillMaxHeight(),
+                        .fillMaxSize(),
                     verticalAlignment = Alignment.CenterVertically
                 ){
                     for (pic in responseImages){
-                        Image(
-                            painter = rememberAsyncImagePainter(model = pic),
-                            contentDescription = "Images"
-                        )
+                        val ref : StorageReference = FirebaseStorage.getInstance().getReference(pic)
+                        var imageBitmap by remember { mutableStateOf<ImageBitmap?>(null) } //storage of image
+
+                        LaunchedEffect(pic) {
+                            val ONE_MEGABYTE: Long = 1024 * 1024
+                            try {
+                                val bytes = ref.getBytes(ONE_MEGABYTE).await()
+                                val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size) // turn to image bits
+                                imageBitmap = bitmap.asImageBitmap()
+                            } catch (e: Exception) {
+                                // Handle any errors
+                            }
+                        }
+
+                        imageBitmap?.let { img ->
+                            Image(
+                                bitmap = img,
+                                contentDescription = "Images",
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .padding(8.dp),
+                            )
+                        }
+
                     }
                 }
             }
@@ -339,7 +370,7 @@ fun userContent(navController: NavHostController,fullName : String, userType : S
                         modifier = Modifier
                     ) {
                         Text(text = "Location", fontWeight = FontWeight.Bold)
-                        Text(text = "Purok Happy Valley Enverga Compound Brgy. Ibabang Dupay Lucena City")//soon description input
+                        Text(text = "$location")//soon description input
                     }
                 }
                 Spacer(modifier = Modifier.width(10.dp))
@@ -352,8 +383,8 @@ fun userContent(navController: NavHostController,fullName : String, userType : S
                     Column(
                         horizontalAlignment = Alignment.End
                     ) {
-                        Text(text = "Room for Rent", fontWeight = FontWeight.Bold) //soon to be input parameter from arguments
-                        Text(text = "3500PHP Monthly", fontWeight = FontWeight.Bold)
+                        Text(text = "$selectRoomTitle", fontWeight = FontWeight.Bold) //soon to be input parameter from arguments
+                        Text(text = "$price PHP Monthly", fontWeight = FontWeight.Bold)
                     }
                 }
             }
@@ -365,7 +396,7 @@ fun userContent(navController: NavHostController,fullName : String, userType : S
             ){
                 OutlinedButton(
                     onClick = {
-                              navController.navigate("LandOwnerEditPost")
+                              navController.navigate("LandOwnerEditPost?documentID=$documentID")
                     },//soon navigates
                     colors = ButtonDefaults.buttonColors(containerColor = Color(color = 0xFFF2B398))
                 ) {
