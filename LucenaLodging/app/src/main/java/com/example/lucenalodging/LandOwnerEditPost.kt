@@ -350,7 +350,10 @@ fun LandOwnerEditPost(navController : NavHostController, auth: FirebaseAuth, db 
                                         if(oneMonthDeposit == true){
                                             Text(text = "1 Month Deposit")
                                         }
-                                        if(oneMonthDeposit == false && oneMonthAdvance == false){
+                                        if(anyID == true){
+                                            Text(text = "Any ID")
+                                        }
+                                        if(oneMonthDeposit == false && oneMonthAdvance == false && anyID == false){
                                             Text(text = "None")
                                         }
                                         Text(
@@ -371,7 +374,7 @@ fun LandOwnerEditPost(navController : NavHostController, auth: FirebaseAuth, db 
                                         ) {
                                             OutlinedButton(
                                                 onClick = {
-                                                    navController.navigate("LandOwnerUpdate")
+                                                    navController.navigate("LandOwnerUpdate?documentID=$documentID")
                                                 },//soon navigates
                                                 modifier = Modifier
                                                     .width(150.dp),

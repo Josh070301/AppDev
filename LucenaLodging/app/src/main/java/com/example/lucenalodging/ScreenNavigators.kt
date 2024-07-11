@@ -71,8 +71,18 @@ fun AppNavigator(auth: FirebaseAuth, db : FirebaseFirestore){
             LandOwnerEditPost(navController, auth, db,
                 documentID = backstackEntry.arguments?.getString("documentID") ?:"")
         }
-        composable(route = "LandOwnerUpdate") {
-            LandOwnerUpdate(navController = navController, auth, db)
+        composable(route = "LandOwnerUpdate?documentID={documentID}",
+            arguments = listOf(
+                navArgument(
+                    name = "documentID"
+                ){
+                    type = NavType.StringType
+                }
+            )
+        ) {
+                backstackEntry ->
+            LandOwnerUpdate(navController = navController, auth, db,
+                documentID = backstackEntry.arguments?.getString("documentID") ?:"")
         }//returns default string if this variable returned null
         composable(route = "LandOwnerUpdatedPost"){
             LandOwnerUpdatedPost(navController, auth, db)

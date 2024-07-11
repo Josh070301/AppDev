@@ -1,5 +1,6 @@
 package com.example.lucenalodging
 
+import android.graphics.BitmapFactory
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -27,6 +28,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,6 +37,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -50,55 +54,141 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageReference
+import kotlinx.coroutines.tasks.await
 
 @Composable
-fun LandOwnerUpdate(navController: NavHostController, auth : FirebaseAuth, db :FirebaseFirestore){
+fun LandOwnerUpdate(navController: NavHostController, auth : FirebaseAuth, db :FirebaseFirestore, documentID : String){
+    var locationMaxChar = 180
+    var curfewMaxChar = 180
+    var roomIncludesMaxChar = 180
+
     val uid = auth.currentUser?.uid
     var fullName by remember{
         mutableStateOf("")
     }
-    if (uid != null){
-        db.collection("LandLords").document(uid)
+    data class Post(
+        val documentId: String = "",
+        val uid : String = "",
+        val email : String = "",
+        val selectRoomTitle : String = "",
+        val location : String= "",
+        val curfew : String= "",
+        val roomIncludes : String= "",
+        val peopleCount : Int= 0,
+        val oneMonthAdvance : Boolean= false,
+        val oneMonthDeposit : Boolean= false,
+        val anyID : Boolean= false,
+        val available : Boolean= false,
+        val price : String= "",
+        val selectImages : List<String> = emptyList(),
+    )
+    var warn by remember {
+        mutableStateOf("")
+    }
+    var posts = remember {
+        mutableListOf<Post>()
+    }
+    if (uid != null) {
+        db.collection("Users").document(uid)
             .get()
             .addOnSuccessListener { document ->
-                if (document != null){
-                    val FullNameFromDB = document.getString("fullName")
-                    fullName = FullNameFromDB.toString()
+                if (document != null) {
+                    fullName = document.getString("fullName").toString()
+                }
+            }
+        db.collection("LandLordPost").document(documentID)
+            .get()
+            .addOnSuccessListener { document ->
+                posts.clear() // clears the current list to avoid duplication
+                if (document != null) {
+                    val documentId = document.id
+                    val uid = document.getString("uid") ?: ""
+                    val email = document.getString("email") ?: ""
+                    val selectRoomTitle = document.getString("roomTitle") ?: ""
+                    val location = document.getString("location") ?: ""
+                    val curfew = document.getString("curfew") ?: ""
+                    val roomIncludes = document.getString("roomIncludes") ?: ""
+                    val peopleCount = document.getLong("peopleCount")?.toInt() ?: 0
+                    val oneMonthAdvance = document.getBoolean("oneMonthAdvance") ?: false
+                    val oneMonthDeposit = document.getBoolean("oneMonthDeposit") ?: false
+                    val anyID = document.getBoolean("anyID") ?: false
+                    val available = document.getBoolean("available") ?: false
+                    val price = document.getString("price") ?: ""
+                    val selectImages = document.get("images") as? List<String> ?: emptyList()
+
+
+                    val storagePost = Post(
+                        documentId,
+                        uid,
+                        email,
+                        selectRoomTitle,
+                        location, curfew,
+                        roomIncludes,
+                        peopleCount,
+                        oneMonthAdvance,
+                        oneMonthDeposit,
+                        anyID,
+                        available,
+                        price,
+                        selectImages,
+                    )
+                    posts.add(storagePost)
+                } else {
+                    warn = "No Posts Yet"
                 }
             }
     }
+    var documentId by remember {
+        mutableStateOf("")
+    }
+    var email by remember {
+        mutableStateOf("")
+    }
     var selectRoomTitle by remember {
-        mutableStateOf("Room For Rent")
+        mutableStateOf("")
     }
     var location by remember {
-        mutableStateOf("Purok Happy Valley Enverga Compound Brgy. Ibabang Dupay Lucena City")
+        mutableStateOf("")
     }
     var curfew by remember {
-        mutableStateOf("2:00PM")
+        mutableStateOf("")
     }
     var roomIncludes by remember {
-        mutableStateOf("Free : Water, Wi-Fi, Bed, Foam, 24 Hours CCTV Footage, 24 Hours Water Supply, Locked Gates, Open Parking Available, Own Comfort Room")
+        mutableStateOf("")
     }
-    var locationMaxChar = 180
-    var curfewMaxChar = 180
-    var roomIncludesMaxChar = 180
     var peopleCount by remember {
-        mutableStateOf(2)
+        mutableStateOf(1)
     }
     var oneMonthAdvance by remember {
-        mutableStateOf(true)
+        mutableStateOf(false)
     }
     var oneMonthDeposit by remember {
-        mutableStateOf(true)
+        mutableStateOf(false)
     }
     var anyID by remember {
         mutableStateOf(false)
     }
     var available by remember {
-        mutableStateOf(true)
+        mutableStateOf(false)
     }
     var price by remember {
-        mutableStateOf("3500")
+        mutableStateOf("")
+    }
+    for (pic in posts){
+        documentId = pic.documentId
+        email = pic.email
+        selectRoomTitle = pic.selectRoomTitle
+        location = pic.location
+        curfew = pic.curfew
+        roomIncludes = pic.roomIncludes
+        peopleCount = pic.peopleCount
+        oneMonthAdvance = pic.oneMonthAdvance
+        oneMonthDeposit = pic.oneMonthDeposit
+        anyID = pic.anyID
+        available = pic.available
+        price = pic.price
     }
     var deleteDialog by remember {
         mutableStateOf(false)
@@ -144,7 +234,7 @@ fun LandOwnerUpdate(navController: NavHostController, auth : FirebaseAuth, db :F
                         Row {
                             BackImage(
                                 navController = navController,
-                                backTo = "LandOwnerEditPost"
+                                backTo = "LandOwnerEditPost?documentID=$documentID"
                             )
                         }
                         Spacer(modifier = Modifier.width(10.dp))
@@ -173,7 +263,7 @@ fun LandOwnerUpdate(navController: NavHostController, auth : FirebaseAuth, db :F
                         ){
                             Row ( //upload images
                             ){
-                                Text(text = "Upload Images",
+                                Text(text = "Images",
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 17.sp
                                 )
@@ -183,24 +273,11 @@ fun LandOwnerUpdate(navController: NavHostController, auth : FirebaseAuth, db :F
                                     .fillMaxWidth(),
 
                                 ){
-                                Row (
-                                    verticalAlignment = Alignment.Bottom
-                                ){
-                                    Text(text = "Select File From Gallery", //needs function to upload image soon
-                                        textDecoration = TextDecoration.Underline,
-                                        color = Color.Blue
-                                    )
-                                    Image(painter = painterResource(id = R.drawable.icons8_image_file_30),
-                                        contentDescription = "Upload Image",
-                                        modifier = Modifier
-                                            .width(50.dp)
-                                            .height(30.dp)
-                                    )
-                                }
+
                                 Spacer(modifier = Modifier.height(10.dp))
                                 Row (
                                     modifier = Modifier
-                                        .width(250.dp)
+                                        .fillMaxWidth()
                                         .height(150.dp)
                                         .clip(RoundedCornerShape(20.dp))
                                         .background(color = Color(color = 0xFFFAFAFA))
@@ -211,12 +288,39 @@ fun LandOwnerUpdate(navController: NavHostController, auth : FirebaseAuth, db :F
                                         ),
                                     verticalAlignment = Alignment.CenterVertically
                                 ){
-                                    Column (
+                                    Row (
                                         modifier = Modifier
-                                            .fillMaxWidth(),
-                                        horizontalAlignment = Alignment.CenterHorizontally
+                                            .fillMaxSize(),
+                                        verticalAlignment = Alignment.CenterVertically
                                     ){
-                                        Text(text = "Images will appear here")
+                                        for (pic in posts){
+                                            val imageDir = pic.selectImages
+                                            for (x in imageDir){
+                                                val ref : StorageReference = FirebaseStorage.getInstance().getReference(x)
+                                                var imageBitmap by remember { mutableStateOf<ImageBitmap?>(null) } //storage of image
+
+                                                LaunchedEffect(x) {
+                                                    val ONE_MEGABYTE: Long = 1024 * 1024
+                                                    try {
+                                                        val bytes = ref.getBytes(ONE_MEGABYTE).await()
+                                                        val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size) // turn to image bits
+                                                        imageBitmap = bitmap.asImageBitmap()
+                                                    } catch (e: Exception) {
+                                                        // Handle any errors
+                                                    }
+                                                }
+
+                                                imageBitmap?.let { img ->
+                                                    Image(
+                                                        bitmap = img,
+                                                        contentDescription = "Images",
+                                                        modifier = Modifier
+                                                            .weight(1f)
+                                                            .padding(8.dp),
+                                                    )
+                                                }
+                                            }
+                                        } //loops image from a list in post named selectedImages
                                     }
                                 }
                                 Spacer(modifier = Modifier.height(5.dp))
@@ -499,7 +603,24 @@ fun LandOwnerUpdate(navController: NavHostController, auth : FirebaseAuth, db :F
                                 ){
                                     OutlinedButton(
                                         onClick = {
-                                                  navController.navigate("LandOwnerUpdatedPost")
+                                            db.collection("LandLordPost").document(documentID)
+                                                .update(mapOf(
+                                                    "email" to email,
+                                                    "uid" to uid,
+                                                    "roomTitle" to selectRoomTitle,
+                                                    "location" to location,
+                                                    "curfew" to curfew,
+                                                    "roomIncludes" to roomIncludes,
+                                                    "peopleCount" to peopleCount,
+                                                    "oneMonthAdvance" to oneMonthAdvance,
+                                                    "oneMonthDeposit" to oneMonthDeposit,
+                                                    "anyID" to anyID,
+                                                    "available" to available,
+                                                    "price" to price,
+                                                    //"images" to randomImageID,
+                                                )).addOnSuccessListener {
+                                                    navController.navigate("LandOwnerUpdatedPost")
+                                                }
                                         },//soon navigates
                                         colors = ButtonDefaults.buttonColors(containerColor = Color(color = 0xFFF2B398)),
                                         modifier = Modifier
@@ -518,14 +639,29 @@ fun LandOwnerUpdate(navController: NavHostController, auth : FirebaseAuth, db :F
                                     ) {
                                         Text(text = "Delete", color = Color.Black)
                                     }
-                                    if (deleteDialog){
-                                        AlertDialogDelete(
-                                            onDismissRequest = { deleteDialog = false },
-                                            onConfirmation = { deleteDialog = false },
-                                            dialogTitle = "Confirm Delete Action?",
-                                            dialogText = "The data will be permanently Deleted",
-                                            navController = navController,
-                                        )
+                                    Column(
+                                        modifier = Modifier
+                                            .height(20.dp)
+                                            .fillMaxWidth(),
+                                        horizontalAlignment = Alignment.CenterHorizontally
+                                    ) {
+                                        Text(text = "Note: creating another post is recommended to change photo")
+                                    }
+                                    for (x in posts){
+                                        val toDeleteImages = x.selectImages
+                                        if (deleteDialog){
+                                            AlertDialogDelete(
+                                                onDismissRequest = { deleteDialog = false },
+                                                onConfirmation = { deleteDialog = false },
+                                                dialogTitle = "Confirm Delete Action?",
+                                                dialogText = "The data will be permanently Deleted",
+                                                navController = navController,
+                                                documentID,
+                                                toDeleteImages,
+                                                db,
+                                                auth
+                                            )
+                                        }
                                     }
                                 }
                             }
@@ -544,7 +680,12 @@ fun AlertDialogDelete(
     dialogTitle: String,
     dialogText: String,
     navController: NavHostController,
+    documentID: String,
+    toDeleteImages : List<String>,
+    db: FirebaseFirestore,
+    auth: FirebaseAuth
 ) {
+    val storage = FirebaseStorage.getInstance() // initialize firestorag to use in deleting
     AlertDialog(
         title = {
             Text(text = dialogTitle)
@@ -559,7 +700,15 @@ fun AlertDialogDelete(
             TextButton(
                 onClick = {
                     onDismissRequest()
-                    navController.navigate("LandOwnerDelete")
+                    db.collection("LandLordPost").document(documentID).delete() //deletes document in firestore
+                        .addOnSuccessListener {
+                            for(x in toDeleteImages){
+                                val imageRef = storage.getReference(x).delete() //deletes photoimages in firestorage with its path coming from firestore document
+                                    .addOnSuccessListener {
+                                        navController.navigate("LandOwnerDelete")
+                                    }
+                            }
+                        }
                 }
             ) {
                 Text("Delete")
