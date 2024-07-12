@@ -54,6 +54,9 @@ fun AppNavigator(auth: FirebaseAuth, db : FirebaseFirestore){
         composable(route = "LandOwnerUserProfile"){
             LandOwnerProfile(navController, auth, db)
         }
+        composable(route = "LandOwnerEditUserProfile"){
+            LandOwnerEditUserProfile(navController, auth, db)
+        }
         composable(route = "LandOwnerSettings") {
             LandOwnerSettings(
                 navController = navController, auth, db

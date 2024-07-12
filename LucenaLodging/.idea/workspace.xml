@@ -10,9 +10,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="7f5978ec-0fc2-450e-8bcb-494646dd2f83" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/lucenalodging/LandOwnerEditPost.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/lucenalodging/LandOwnerEditPost.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/lucenalodging/LandOwnerUpdate.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/lucenalodging/LandOwnerUpdate.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/lucenalodging/LandOwnerProfile.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/lucenalodging/LandOwnerProfile.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/lucenalodging/ScreenNavigators.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/lucenalodging/ScreenNavigators.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
