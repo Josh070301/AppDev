@@ -122,6 +122,7 @@ fun LandOwnerSettings(navController: NavHostController, auth: FirebaseAuth, db :
                             modifier = Modifier
                                 .clickable(
                                     onClick = {
+                                        auth.signOut() //signs out current logged in user
                                         navController.navigate("LoginAs")
                                     }
                                 )

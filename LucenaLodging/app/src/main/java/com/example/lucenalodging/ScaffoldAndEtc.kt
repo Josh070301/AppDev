@@ -1612,7 +1612,7 @@ fun BottomMenu(navController: NavHostController,userName : String, usage:String,
                                 .fillMaxWidth()
                                 .clickable(
                                     onClick = {
-                                        navController.navigate("TenantSettings?userName=$userName")
+                                        navController.navigate("TenantSettings")
                                     }
                                 ),
                             horizontalAlignment = Alignment.CenterHorizontally
@@ -1796,7 +1796,7 @@ fun BottomMenu(navController: NavHostController,userName : String, usage:String,
                                 .fillMaxWidth()
                                 .clickable(
                                     onClick = {
-                                        navController.navigate("TenantSettings?userName=$userName")
+                                        navController.navigate("TenantSettings")
                                     }
                                 ),
                             horizontalAlignment = Alignment.CenterHorizontally
@@ -1980,7 +1980,7 @@ fun BottomMenu(navController: NavHostController,userName : String, usage:String,
                                 .fillMaxWidth()
                                 .clickable(
                                     onClick = {
-                                        navController.navigate("TenantSettings?userName=$userName")
+                                        navController.navigate("TenantSettings")
                                     }
                                 ),
                             horizontalAlignment = Alignment.CenterHorizontally
@@ -2055,7 +2055,7 @@ fun BottomMenu(navController: NavHostController,userName : String, usage:String,
                                 .fillMaxWidth()
                                 .clickable(
                                     onClick = {
-                                        navController.navigate("TenantBrowsePost?userName=$userName")
+                                        navController.navigate("TenantBrowsePost?email=$userName")
                                     }
                                 ),
                             horizontalAlignment = Alignment.CenterHorizontally
@@ -2164,7 +2164,7 @@ fun BottomMenu(navController: NavHostController,userName : String, usage:String,
                                 .fillMaxWidth()
                                 .clickable(
                                     onClick = {
-                                        navController.navigate("TenantSettings?userName=$userName")
+                                        navController.navigate("TenantSettings")
                                     }
                                 ),
                             horizontalAlignment = Alignment.CenterHorizontally
@@ -2348,7 +2348,7 @@ fun BottomMenu(navController: NavHostController,userName : String, usage:String,
                                 .fillMaxWidth()
                                 .clickable(
                                     onClick = {
-                                        navController.navigate("TenantSettings?userName=$userName")
+                                        navController.navigate("TenantSettings")
                                     }
                                 ),
                             horizontalAlignment = Alignment.CenterHorizontally

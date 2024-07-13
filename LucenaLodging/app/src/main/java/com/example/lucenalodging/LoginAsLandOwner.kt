@@ -1,6 +1,7 @@
 package com.example.lucenalodging
 
 import android.util.Log
+import android.widget.Space
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -224,7 +225,11 @@ fun LoginAsLandOwner(navController : NavHostController, auth: FirebaseAuth, db: 
                             textDecoration = TextDecoration.Underline
                         )
                     }
-                    Text(text = "$warn")
+                    Column (modifier = Modifier
+                        .fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally){
+                        Text(text = "$warn", color = Color.Red)
+                    }
                     Column ( //Login button
                         modifier = Modifier
                             .fillMaxWidth()
@@ -245,13 +250,25 @@ fun LoginAsLandOwner(navController : NavHostController, auth: FirebaseAuth, db: 
                                                     .get()
                                                     .addOnSuccessListener { doc ->
                                                         if (doc != null){
+                                                            val user = auth.currentUser
                                                             val userType = doc.getString("userType")
-                                                            if (userType == "Landlord"){ //userType in firestore
-                                                                navController.navigate("LandOwnerBrowsePost")
-                                                            }
-                                                            else{
-                                                                warn = "account is not a Landlord type" //returns in warning that account is not a landlord type
-                                                                auth.signOut() //signs out the auth login attempt
+                                                            if (user != null){
+                                                                if(user.isEmailVerified){
+                                                                    if (userType == "Landlord"){ //userType in firestore
+                                                                        navController.navigate("LandOwnerBrowsePost")
+                                                                    }
+                                                                    else{
+                                                                        warn = "account is not a Landlord type" //returns in warning that account is not a landlord type
+                                                                        auth.signOut() //signs out the auth login attempt
+                                                                    }
+                                                                }
+                                                                else{
+                                                                    user.delete()
+                                                                        .addOnSuccessListener {
+                                                                            warn = "Email account is not yet Verified\nPlease verify again through sign up"
+                                                                            db.collection("Users").document(uid).delete()
+                                                                        }
+                                                                }
                                                             }
                                                         }
                                                     }
@@ -321,6 +338,9 @@ fun LandOwnerCreateAccount(navController: NavHostController, auth: FirebaseAuth,
         mutableStateOf("")
     }
     var warn by remember {
+        mutableStateOf("")
+    }
+    var passReq by remember{
         mutableStateOf("")
     }
     Surface (
@@ -411,7 +431,7 @@ fun LandOwnerCreateAccount(navController: NavHostController, auth: FirebaseAuth,
                                         shape = RoundedCornerShape(10.dp),
                                         label = { Text("Email", color = Color.Gray) },
                                     )
-                                    Text(text = "$warn")
+                                    Text(text = "$warn", color = Color.Red)
                                     Spacer(modifier = Modifier.height(20.dp))
                                     Text(text = "Full Name",
                                         fontSize = 17.sp,
@@ -462,6 +482,8 @@ fun LandOwnerCreateAccount(navController: NavHostController, auth: FirebaseAuth,
                                         shape = RoundedCornerShape(10.dp),
                                         label = { Text("Password", color = Color.Gray) },
                                     )
+                                    Spacer(modifier = Modifier.height(10.dp))
+                                    Text(text = "$passReq", color = Color.Red)
 
                                 }
                                 Spacer(modifier = Modifier.height(20.dp))
@@ -472,31 +494,46 @@ fun LandOwnerCreateAccount(navController: NavHostController, auth: FirebaseAuth,
                                 ){
                                     Button(
                                         onClick = {
-                                            if (newPassword.length > 7 && newPassword == confirmedPassword){
-                                                auth.createUserWithEmailAndPassword(email, newPassword) //firebase create
-                                                    .addOnSuccessListener {
+                                            if (newPassword.length > 7 && newPassword == confirmedPassword) {
+                                                auth.createUserWithEmailAndPassword(
+                                                    email,
+                                                    newPassword
+                                                ) //firebase create
+                                                    .addOnCompleteListener { task ->
                                                         val user = auth.currentUser
                                                         val uid = user?.uid //stores additional info in firestore
-
-                                                        if (uid != null){
-                                                            val userMap = hashMapOf(
-                                                                "fullName" to fullName,
-                                                                "email" to email,
-                                                                "userType" to "Landlord"
-                                                            )
-                                                            db.collection("Users").document(uid)
-                                                                .set(userMap)
-                                                                .addOnSuccessListener {
-                                                                    navController.navigate("LandOwnerCreateAccountSuccess")
+                                                        if(task.isSuccessful){
+                                                            user?.sendEmailVerification()?.addOnCompleteListener { verifyEmail ->
+                                                                if (verifyEmail.isSuccessful){
+                                                                    passReq = "Verification Email sent to $email"
+                                                                    if (uid != null) {
+                                                                        val userMap = hashMapOf(
+                                                                            "fullName" to fullName,
+                                                                            "email" to email,
+                                                                            "userType" to "Landlord"
+                                                                        )
+                                                                        db.collection("Users").document(uid)
+                                                                            .set(userMap)
+                                                                            .addOnSuccessListener {
+                                                                                navController.navigate("LandOwnerCreateAccountSuccess?email=$email")
+                                                                            }
+                                                                    }
                                                                 }
+                                                                else {
+                                                                    passReq = "Please try again later"
+                                                                }
+                                                            }
                                                         }
                                                     }
                                                     .addOnFailureListener {
-                                                    warn = "Email Already Taken"
-                                                }
-                                                }
+                                                        warn = "Email Already Taken or Invalid"
+                                                    }
+                                            } else if (newPassword.length <= 7) {
+                                                passReq = "Password must be minimum of 8 characters"
+                                            } else if (newPassword != confirmedPassword) {
+                                                passReq = "Password and Confirm Password Missmatch"
                                             }
-                                        ,
+                                        },
                                         modifier = Modifier
                                             .size(width = 150.dp, height = 45.dp)
                                             .border(1.dp, Color.Black, RoundedCornerShape(13.dp)),
@@ -506,9 +543,9 @@ fun LandOwnerCreateAccount(navController: NavHostController, auth: FirebaseAuth,
                                         ),
                                     ) {
                                         Text(
-                                            text = "Continue",
+                                            text = "Verify Email",
                                             color = Color.Black,
-                                            fontSize = 20.sp,
+                                            fontSize = 13.sp,
                                             letterSpacing = 2.sp
                                         )
                                     }
@@ -536,7 +573,7 @@ fun LandOwnerCreateAccount(navController: NavHostController, auth: FirebaseAuth,
 }
 
 @Composable
-fun LandOwnerCreateAccountSuccess(navController: NavHostController){
+fun LandOwnerCreateAccountSuccess(navController: NavHostController, email : String){
     Surface (
         modifier = Modifier
             .fillMaxSize(),
@@ -579,8 +616,13 @@ fun LandOwnerCreateAccountSuccess(navController: NavHostController){
                                     .fillMaxWidth(),
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ){
-                                Text(text = "LandOwner Account Created",
-                                    fontSize = 40.sp,
+                                Text(text = "Please Verify your Account by checking your $email",
+                                    fontSize = 25.sp,
+                                    textAlign = TextAlign.Center
+                                )
+                                Text(text = "Note: Please verify first before loggin in",
+                                    fontSize = 18.sp,
+                                    color = Color.Red,
                                     textAlign = TextAlign.Center
                                 )
                                 OutlinedButton(
@@ -591,7 +633,7 @@ fun LandOwnerCreateAccountSuccess(navController: NavHostController){
                                     modifier = Modifier
                                         .width(150.dp)
                                 ) {
-                                    Text(text = "Login", color = Color.Black)
+                                    Text(text = "Back to Login", color = Color.Black)
                                 }
                             }
                         }

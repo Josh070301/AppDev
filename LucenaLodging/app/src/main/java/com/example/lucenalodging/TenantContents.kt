@@ -43,16 +43,19 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.google.firebase.auth.EmailAuthProvider
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 //codes of tenant UI and functionalities are here unlike land owner which are separated
 @Composable
-fun WelcomeTenant(navController: NavHostController, userName : String){
+fun WelcomeTenant(navController: NavHostController, email : String){
     Surface (
         modifier = Modifier
             .fillMaxSize(),
         color = Color(color = 0xFFFDF7E4)
     ){
-        BottomMenu(navController,userName, usage ="Browse Post", userType = "Tenants")//scaffold on ScaffoldAndEtc.kt
+        BottomMenu(navController,email, usage ="Browse Post", userType = "Tenants")//scaffold on ScaffoldAndEtc.kt
         Row ( // Column for the surface
             modifier = Modifier
                 .fillMaxSize()
@@ -84,7 +87,7 @@ fun WelcomeTenant(navController: NavHostController, userName : String){
                     Spacer(modifier = Modifier.height(10.dp))
                     repeat(10){
                         Spacer(modifier = Modifier.height(20.dp))
-                        //userContent(navController,userName, userType = "Tenants") //calls user Content can be multiple dependin on count
+                        //userContent(navController,email, userType = "Tenants") //calls user Content can be multiple dependin on count
                     }
                 }
             }
@@ -723,13 +726,27 @@ fun TenantProfile(navController: NavHostController, userName : String){
 }
 
 @Composable
-fun TenantSettings(navController: NavHostController, userName : String){
+fun TenantSettings(navController: NavHostController, auth: FirebaseAuth, db : FirebaseFirestore){
+    val uid = auth.currentUser?.uid
+    var fullName by remember{
+        mutableStateOf("")
+    }
+    if (uid != null){
+        db.collection("Users").document(uid)
+            .get()
+            .addOnSuccessListener { document ->
+                if (document != null){
+                    val FullNameFromDB = document.getString("fullName")
+                    fullName = FullNameFromDB.toString()
+                }
+            }
+    }
     Surface (
         modifier = Modifier
             .fillMaxSize(),
         color = Color(color = 0xFFFDF7E4)
     ) {
-        BottomMenu(navController,userName, usage = "Settings", userType = "Tenants")//scaffold on ScaffoldAndEtc.kt
+        BottomMenu(navController,fullName, usage = "Settings", userType = "Tenants")//scaffold on ScaffoldAndEtc.kt
         Row ( // Column for the surface
             modifier = Modifier
                 .fillMaxSize()
@@ -782,7 +799,7 @@ fun TenantSettings(navController: NavHostController, userName : String){
                             modifier = Modifier
                                 .clickable(
                                     onClick = {
-                                        navController.navigate("TenantChangePassword?userName=$userName")
+                                        navController.navigate("TenantChangePassword")
                                     }
                                 )
                                 .height(40.dp)
@@ -798,6 +815,7 @@ fun TenantSettings(navController: NavHostController, userName : String){
                             modifier = Modifier
                                 .clickable(
                                     onClick = {
+                                        auth.signOut() //signs out current logged in user
                                         navController.navigate("LoginAs")
                                     }
                                 )
@@ -818,8 +836,25 @@ fun TenantSettings(navController: NavHostController, userName : String){
 }
 
 @Composable
-fun TenantChangePassword(navController: NavHostController, userName : String){
+fun TenantChangePassword(navController: NavHostController, auth: FirebaseAuth, db: FirebaseFirestore){
+    val uid = auth.currentUser?.uid
+    var fullName by remember{
+        mutableStateOf("")
+    }
+    if (uid != null){
+        db.collection("LandLords").document(uid)
+            .get()
+            .addOnSuccessListener { document ->
+                if (document != null){
+                    val FullNameFromDB = document.getString("fullName")
+                    fullName = FullNameFromDB.toString()
+                }
+            }
+    }
     var oldPassword by remember {
+        mutableStateOf("")
+    }
+    var warn by remember{
         mutableStateOf("")
     }
     Surface (
@@ -827,7 +862,7 @@ fun TenantChangePassword(navController: NavHostController, userName : String){
             .fillMaxSize(),
         color = Color(color = 0xFFFDF7E4)
     ) {
-        BottomMenu(navController,userName, usage = "Settings", userType = "Tenants")//scaffold on ScaffoldAndEtc.kt
+        BottomMenu(navController,fullName, usage = "Settings", userType = "Tenants")//scaffold on ScaffoldAndEtc.kt
         Row ( // Column for the surface
             modifier = Modifier
                 .fillMaxSize()
@@ -860,7 +895,7 @@ fun TenantChangePassword(navController: NavHostController, userName : String){
                                 .fillMaxWidth(),
                             verticalAlignment = Alignment.CenterVertically
                         ){
-                            BackImage(navController = navController, backTo ="TenantSettings?userName=$userName" )
+                            BackImage(navController = navController, backTo ="TenantSettings" )
                         }
                     }
                     MainSpacer()// at ScaffoldAndEtc.kt
@@ -899,10 +934,26 @@ fun TenantChangePassword(navController: NavHostController, userName : String){
                                 shape = RoundedCornerShape(10.dp),
                                 label = { Text("Password", color = Color.Gray) },
                             )
+                            Spacer(modifier = Modifier.height(20.dp))
+                            Column (modifier = Modifier
+                                .fillMaxWidth(),
+                                horizontalAlignment = Alignment.CenterHorizontally){
+                                Text(text = "$warn", color = Color.Red)
+                            }
                             Spacer(modifier = Modifier.height(50.dp))
                             Button(
                                 onClick = {
-                                    navController.navigate("TenantConfirmedPassword?userName=$userName")
+                                    val user = auth.currentUser
+                                    if (user != null && oldPassword.isNotEmpty()){
+                                        val currentCredential = EmailAuthProvider.getCredential(user.email!!, oldPassword) // checks in firebase if there is the current logged in user email and if password is same
+                                        user.reauthenticate(currentCredential) //if reauthenticate succeeds
+                                            .addOnSuccessListener {
+                                                navController.navigate("TenantConfirmedPassword")
+                                            }
+                                            .addOnFailureListener {
+                                                warn = "Password Does Not Match the current Password"
+                                            }
+                                    }
                                 },
                                 modifier = Modifier
                                     .size(width = 150.dp, height = 45.dp)
@@ -929,11 +980,28 @@ fun TenantChangePassword(navController: NavHostController, userName : String){
 }
 
 @Composable
-fun TenantConfirmedPassword(navController: NavHostController, userName : String){
+fun TenantConfirmedPassword(navController: NavHostController, auth: FirebaseAuth, db: FirebaseFirestore){
+    val uid = auth.currentUser?.uid
+    var fullName by remember{
+        mutableStateOf("")
+    }
+    if (uid != null){
+        db.collection("Users").document(uid)
+            .get()
+            .addOnSuccessListener { document ->
+                if (document != null){
+                    val FullNameFromDB = document.getString("fullName")
+                    fullName = FullNameFromDB.toString()
+                }
+            }
+    }
     var newPassword by remember {
         mutableStateOf("")
     }
     var confirmedPassword by remember {
+        mutableStateOf("")
+    }
+    var warn by remember{
         mutableStateOf("")
     }
     Surface (
@@ -941,7 +1009,7 @@ fun TenantConfirmedPassword(navController: NavHostController, userName : String)
             .fillMaxSize(),
         color = Color(color = 0xFFFDF7E4)
     ) {
-        BottomMenu(navController,userName, usage = "Settings", userType = "Tenants")//scaffold on ScaffoldAndEtc.kt
+        BottomMenu(navController,fullName, usage = "Settings", userType = "Tenants")//scaffold on ScaffoldAndEtc.kt
         Row ( // Column for the surface
             modifier = Modifier
                 .fillMaxSize()
@@ -974,7 +1042,7 @@ fun TenantConfirmedPassword(navController: NavHostController, userName : String)
                                 .fillMaxWidth(),
                             verticalAlignment = Alignment.CenterVertically
                         ){
-                            BackImage(navController = navController, backTo ="TenantSettings?userName=$userName" )
+                            BackImage(navController = navController, backTo ="TenantSettings" )
                         }
                     }
                     MainSpacer()// at ScaffoldAndEtc.kt
@@ -1040,6 +1108,12 @@ fun TenantConfirmedPassword(navController: NavHostController, userName : String)
                                     label = { Text("Password", color = Color.Gray) },
                                 )
                             }
+                            Spacer(modifier = Modifier.height(20.dp))
+                            Column (modifier = Modifier
+                                .fillMaxWidth(),
+                                horizontalAlignment = Alignment.CenterHorizontally){
+                                Text(text = "$warn", color = Color.Red)
+                            }
                             Spacer(modifier = Modifier.height(50.dp))
                             Column (
                                 modifier = Modifier
@@ -1048,7 +1122,19 @@ fun TenantConfirmedPassword(navController: NavHostController, userName : String)
                             ){
                                 Button(
                                     onClick = {
-                                        navController.navigate("TenantChangedPasswordSuccess?userName=$userName")
+                                        if (newPassword.length > 7 && confirmedPassword == newPassword){ //conditions if password is equal for update
+                                            val user = auth.currentUser
+                                            if(user != null){
+                                                user.updatePassword(newPassword) //updates password in firebase
+                                                navController.navigate("TenantChangedPasswordSuccess")
+                                            }
+                                        }
+                                        else if(newPassword.length < 8){
+                                            warn = "Please enter minimum of 8 characters"
+                                        }
+                                        else if(newPassword != confirmedPassword){
+                                            warn = "Passwords Missmatch"
+                                        }
                                     },
                                     modifier = Modifier
                                         .size(width = 150.dp, height = 45.dp)
@@ -1075,13 +1161,27 @@ fun TenantConfirmedPassword(navController: NavHostController, userName : String)
     }
 }
 @Composable
-fun TenantChangedPasswordSuccess(navController: NavHostController, userName : String){
+fun TenantChangedPasswordSuccess(navController: NavHostController, auth: FirebaseAuth, db: FirebaseFirestore){
+    val uid = auth.currentUser?.uid
+    var fullName by remember{
+        mutableStateOf("")
+    }
+    if (uid != null){
+        db.collection("Users").document(uid)
+            .get()
+            .addOnSuccessListener { document ->
+                if (document != null){
+                    val FullNameFromDB = document.getString("fullName")
+                    fullName = FullNameFromDB.toString()
+                }
+            }
+    }
     Surface (
         modifier = Modifier
             .fillMaxSize(),
         color = Color(color = 0xFFFDF7E4)
     ) {
-        BottomMenu(navController, userName, usage = "Settings", userType = "Tenants")
+        BottomMenu(navController, fullName, usage = "Settings", userType = "Tenants")
         Row( // Column for the surface
             modifier = Modifier
                 .fillMaxSize()
@@ -1145,7 +1245,7 @@ fun TenantChangedPasswordSuccess(navController: NavHostController, userName : St
                             )
                             OutlinedButton(
                                 onClick = {
-                                    navController.navigate("TenantSettings?userName=$userName")
+                                    navController.navigate("TenantSettings")
                                 },//soon navigates
                                 colors = ButtonDefaults.buttonColors(containerColor = Color(color = 0xFFF2B398)),
                                 modifier = Modifier

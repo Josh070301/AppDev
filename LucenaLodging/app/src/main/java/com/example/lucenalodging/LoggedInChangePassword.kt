@@ -39,6 +39,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.style.TextAlign
+import com.google.firebase.auth.EmailAuthCredential
+import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -59,6 +61,9 @@ fun LandOwnerChangePassword(navController: NavHostController, auth: FirebaseAuth
             }
     }
     var oldPassword by remember {
+        mutableStateOf("")
+    }
+    var warn by remember{
         mutableStateOf("")
     }
     Surface (
@@ -138,10 +143,26 @@ fun LandOwnerChangePassword(navController: NavHostController, auth: FirebaseAuth
                                 shape = RoundedCornerShape(10.dp),
                                 label = { Text("Password", color = Color.Gray) },
                             )
+                            Spacer(modifier = Modifier.height(20.dp))
+                            Column (modifier = Modifier
+                                .fillMaxWidth(),
+                                horizontalAlignment = Alignment.CenterHorizontally){
+                                Text(text = "$warn", color = Color.Red)
+                            }
                             Spacer(modifier = Modifier.height(50.dp))
                             Button(
                                 onClick = {
-                                    navController.navigate("LandOwnerConfirmedPassword")
+                                    val user = auth.currentUser
+                                    if (user != null && oldPassword.isNotEmpty()){
+                                        val currentCredential = EmailAuthProvider.getCredential(user.email!!, oldPassword) // checks in firebase if there is the current logged in user email and if password is same
+                                        user.reauthenticate(currentCredential) //if reauthenticate succeeds
+                                            .addOnSuccessListener {
+                                                    navController.navigate("LandOwnerConfirmedPassword")
+                                            }
+                                            .addOnFailureListener {
+                                                warn = "Password Does Not Match the current Password"
+                                            }
+                                    }
                                 },
                                 modifier = Modifier
                                     .size(width = 150.dp, height = 45.dp)
@@ -187,6 +208,9 @@ fun LandOwnerConfirmedPassword(navController: NavHostController, auth: FirebaseA
         mutableStateOf("")
     }
     var confirmedPassword by remember {
+        mutableStateOf("")
+    }
+    var warn by remember{
         mutableStateOf("")
     }
     Surface (
@@ -293,6 +317,12 @@ fun LandOwnerConfirmedPassword(navController: NavHostController, auth: FirebaseA
                                     label = { Text("Password", color = Color.Gray) },
                                 )
                             }
+                            Spacer(modifier = Modifier.height(20.dp))
+                            Column (modifier = Modifier
+                                .fillMaxWidth(),
+                                horizontalAlignment = Alignment.CenterHorizontally){
+                                Text(text = "$warn", color = Color.Red)
+                            }
                             Spacer(modifier = Modifier.height(50.dp))
                             Column (
                                 modifier = Modifier
@@ -301,7 +331,19 @@ fun LandOwnerConfirmedPassword(navController: NavHostController, auth: FirebaseA
                             ){
                                 Button(
                                     onClick = {
-                                        navController.navigate("LandOwnerChangedPasswordSuccess")
+                                        if (newPassword.length > 7 && confirmedPassword == newPassword){ //conditions if password is equal for update
+                                            val user = auth.currentUser
+                                            if(user != null){
+                                                user.updatePassword(newPassword) //updates password in firebase
+                                                navController.navigate("LandOwnerChangedPasswordSuccess")
+                                            }
+                                        }
+                                        else if(newPassword.length < 8){
+                                            warn = "Please enter minimum of 8 characters"
+                                        }
+                                        else if(newPassword != confirmedPassword){
+                                            warn = "Passwords Missmatch"
+                                        }
                                     },
                                     modifier = Modifier
                                         .size(width = 150.dp, height = 45.dp)
@@ -334,7 +376,7 @@ fun LandOwnerChangedPasswordSuccess(navController: NavHostController, auth: Fire
         mutableStateOf("")
     }
     if (uid != null){
-        db.collection("LandLords").document(uid)
+        db.collection("Users").document(uid)
             .get()
             .addOnSuccessListener { document ->
                 if (document != null){

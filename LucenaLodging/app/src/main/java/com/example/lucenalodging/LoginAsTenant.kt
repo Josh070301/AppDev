@@ -59,11 +59,14 @@ import com.google.firebase.firestore.FirebaseFirestore
 //this code contains LoginAsTenant, create account as tenant, reset password as tenant
 
 @Composable
-fun LoginAsTenant(navController : NavHostController){
-    var userName by remember {
+fun LoginAsTenant(navController : NavHostController, auth: FirebaseAuth, db :FirebaseFirestore){
+    var email by remember {
         mutableStateOf("")
     }
     var password by remember {
+        mutableStateOf("")
+    }
+    var warn by remember {
         mutableStateOf("")
     }
     Surface(
@@ -166,8 +169,8 @@ fun LoginAsTenant(navController : NavHostController){
                         ){
                             Spacer(modifier = Modifier.height(10.dp))
                             OutlinedTextField(
-                                value = userName,
-                                onValueChange = {userName = it},
+                                value = email,
+                                onValueChange = {email = it},
                                 colors = TextFieldDefaults.colors( //removes extra background color of label in this outlinedTextField
                                     unfocusedContainerColor = Color.White
                                 ),
@@ -205,6 +208,11 @@ fun LoginAsTenant(navController : NavHostController){
                             textDecoration = TextDecoration.Underline
                         )
                     }
+                    Column (modifier = Modifier
+                        .fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally){
+                        Text(text = "$warn", color = Color.Red)
+                    }
                     Column ( //Login button
                         modifier = Modifier
                             .fillMaxWidth()
@@ -214,7 +222,48 @@ fun LoginAsTenant(navController : NavHostController){
                     ){
                         Button(
                             onClick = {
-                                navController.navigate("TenantBrowsePost?userName=$userName")
+                                email = email.trim()
+                                password = password.trim()
+                                if (email != "" && password != ""){
+                                    auth.signInWithEmailAndPassword(email, password)
+                                        .addOnSuccessListener { //if its in firebase and successful
+                                            val uid = auth.currentUser?.uid
+                                            if (uid != null){
+                                                db.collection("Users").document(uid)
+                                                    .get()
+                                                    .addOnSuccessListener { doc ->
+                                                        if (doc != null){
+                                                            val user = auth.currentUser
+                                                            val userType = doc.getString("userType")
+                                                            if (user != null){
+                                                                if(user.isEmailVerified){
+                                                                    if (userType == "Tenant"){ //userType in firestore
+                                                                        navController.navigate("TenantBrowsePost?email=$email")
+                                                                    }
+                                                                    else{
+                                                                        warn = "account is not a Tenant type" //returns in warning that account is not a landlord type
+                                                                        auth.signOut() //signs out the auth login attempt
+                                                                    }
+                                                                }
+                                                                else{
+                                                                    user.delete()
+                                                                        .addOnSuccessListener {
+                                                                            warn = "Email account is not yet Verified\nPlease verify again through sign up"
+                                                                            db.collection("Users").document(uid).delete()
+                                                                        }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                            }
+                                        }
+                                        .addOnFailureListener { //if email sign in with password is not successful
+                                            warn = "Invalid Login credentials"
+                                        }
+                                }
+                                else{
+                                    warn = "Please fill all fields"
+                                }
                             },
                             modifier = Modifier
                                 .size(width = 150.dp, height = 45.dp)
@@ -272,6 +321,9 @@ fun TenantCreateAccount(navController: NavHostController, auth: FirebaseAuth, db
         mutableStateOf("")
     }
     var warn by remember {
+        mutableStateOf("")
+    }
+    var passReq by remember{
         mutableStateOf("")
     }
     Surface (
@@ -362,7 +414,7 @@ fun TenantCreateAccount(navController: NavHostController, auth: FirebaseAuth, db
                                         shape = RoundedCornerShape(10.dp),
                                         label = { Text("Email", color = Color.Gray) },
                                     )
-                                    Text(text = "$warn")
+                                    Text(text = "$warn", color = Color.Red)
                                     Spacer(modifier = Modifier.height(20.dp))
                                     Text(text = "Full Name",
                                         fontSize = 17.sp,
@@ -413,7 +465,8 @@ fun TenantCreateAccount(navController: NavHostController, auth: FirebaseAuth, db
                                         shape = RoundedCornerShape(10.dp),
                                         label = { Text("Password", color = Color.Gray) },
                                     )
-
+                                    Spacer(modifier = Modifier.height(10.dp))
+                                    Text(text = "$passReq", color = Color.Red)
                                 }
                                 Spacer(modifier = Modifier.height(20.dp))
                                 Column (
@@ -423,31 +476,46 @@ fun TenantCreateAccount(navController: NavHostController, auth: FirebaseAuth, db
                                 ){
                                     Button(
                                         onClick = {
-                                            if (newPassword.length > 7 && newPassword == confirmedPassword){
-                                                auth.createUserWithEmailAndPassword(email, newPassword) //firebase create
-                                                    .addOnSuccessListener {
+                                            if (newPassword.length > 7 && newPassword == confirmedPassword) {
+                                                auth.createUserWithEmailAndPassword(
+                                                    email,
+                                                    newPassword
+                                                ) //firebase create
+                                                    .addOnCompleteListener { task ->
                                                         val user = auth.currentUser
                                                         val uid = user?.uid //stores additional info in firestore
-
-                                                        if (uid != null){
-                                                            val userMap = hashMapOf(
-                                                                "fullName" to fullName,
-                                                                "email" to email,
-                                                                "userType" to "Tenant"
-                                                            )
-                                                            db.collection("Users").document(uid)
-                                                                .set(userMap)
-                                                                .addOnSuccessListener {
-                                                                    navController.navigate("TenantCreateAccountSuccess")
+                                                        if(task.isSuccessful){
+                                                            user?.sendEmailVerification()?.addOnCompleteListener { verifyEmail ->
+                                                                if (verifyEmail.isSuccessful){
+                                                                    passReq = "Verification Email sent to $email"
+                                                                    if (uid != null) {
+                                                                        val userMap = hashMapOf(
+                                                                            "fullName" to fullName,
+                                                                            "email" to email,
+                                                                            "userType" to "Tenant"
+                                                                        )
+                                                                        db.collection("Users").document(uid)
+                                                                            .set(userMap)
+                                                                            .addOnSuccessListener {
+                                                                                navController.navigate("TenantCreateAccountSuccess?email=$email")
+                                                                            }
+                                                                    }
                                                                 }
+                                                                else {
+                                                                    passReq = "Please try again later"
+                                                                }
+                                                            }
                                                         }
                                                     }
                                                     .addOnFailureListener {
-                                                        warn = "Email Already Taken"
+                                                        warn = "Email Already Taken or Invalid"
                                                     }
+                                            } else if (newPassword.length <= 7) {
+                                                passReq = "Password must be minimum of 8 characters"
+                                            } else if (newPassword != confirmedPassword) {
+                                                passReq = "Password and Confirm Password Missmatch"
                                             }
-                                        }
-                                        ,
+                                        },
                                         modifier = Modifier
                                             .size(width = 150.dp, height = 45.dp)
                                             .border(1.dp, Color.Black, RoundedCornerShape(13.dp)),
@@ -487,7 +555,7 @@ fun TenantCreateAccount(navController: NavHostController, auth: FirebaseAuth, db
 }
 
 @Composable
-fun TenantCreateAccountSuccess(navController: NavHostController, auth: FirebaseAuth, db: FirebaseFirestore){
+fun TenantCreateAccountSuccess(navController: NavHostController, auth: FirebaseAuth, db: FirebaseFirestore, email : String){
     Surface (
         modifier = Modifier
             .fillMaxSize(),
@@ -530,8 +598,13 @@ fun TenantCreateAccountSuccess(navController: NavHostController, auth: FirebaseA
                                     .fillMaxWidth(),
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ){
-                                Text(text = "TenantAccount Created",
-                                    fontSize = 40.sp,
+                                Text(text = "Please Verify your Account by checking your $email",
+                                    fontSize = 25.sp,
+                                    textAlign = TextAlign.Center
+                                )
+                                Text(text = "Note: Please verify first before loggin in",
+                                    fontSize = 18.sp,
+                                    color = Color.Red,
                                     textAlign = TextAlign.Center
                                 )
                                 OutlinedButton(
@@ -542,7 +615,7 @@ fun TenantCreateAccountSuccess(navController: NavHostController, auth: FirebaseA
                                     modifier = Modifier
                                         .width(150.dp)
                                 ) {
-                                    Text(text = "Login", color = Color.Black)
+                                    Text(text = "Back to Login", color = Color.Black)
                                 }
                             }
                         }
