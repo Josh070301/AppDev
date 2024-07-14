@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ButtonDefaults
@@ -68,6 +69,8 @@ fun LandOwnerEditPost(navController : NavHostController, auth: FirebaseAuth, db 
         val anyID : Boolean= false,
         val available : Boolean= false,
         val price : String= "",
+        val userProfile : String= "",
+        val fullName : String= "",
         val selectImages : List<String> = emptyList(),
     )
     var warn by remember {
@@ -75,6 +78,9 @@ fun LandOwnerEditPost(navController : NavHostController, auth: FirebaseAuth, db 
     }
     var posts = remember {
         mutableListOf<Post>()
+    }
+    var hasUserProfile by remember{
+        mutableStateOf("")
     }
     if (uid != null) {
         db.collection("Users").document(uid)
@@ -102,6 +108,8 @@ fun LandOwnerEditPost(navController : NavHostController, auth: FirebaseAuth, db 
                     val anyID = document.getBoolean("anyID") ?: false
                     val available = document.getBoolean("available") ?: false
                     val price = document.getString("price") ?: ""
+                    val userProfile = document.getString("UserProfile") ?:""
+                    val fullName = document.getString("fullName") ?:""
                     val selectImages = document.get("images") as? List<String> ?: emptyList()
 
 
@@ -118,6 +126,8 @@ fun LandOwnerEditPost(navController : NavHostController, auth: FirebaseAuth, db 
                         anyID,
                         available,
                         price,
+                        userProfile,
+                        fullName,
                         selectImages,
                     )
                     posts.add(storagePost)
@@ -162,6 +172,9 @@ fun LandOwnerEditPost(navController : NavHostController, auth: FirebaseAuth, db 
     var price by remember {
         mutableStateOf("")
     }
+    var posterName by remember{
+        mutableStateOf("")
+    }
     for (pic in posts){
         documentId = pic.documentId
         email = pic.email
@@ -175,6 +188,8 @@ fun LandOwnerEditPost(navController : NavHostController, auth: FirebaseAuth, db 
         anyID = pic.anyID
         available = pic.available
         price = pic.price
+        posterName = pic.fullName
+        hasUserProfile = pic.userProfile
     }
         Surface(
             modifier = Modifier
@@ -243,14 +258,51 @@ fun LandOwnerEditPost(navController : NavHostController, auth: FirebaseAuth, db 
                                     .height(80.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Image(
-                                    painter = painterResource(id = R.drawable.icons8_profile_picture_90),
-                                    contentDescription = "User Profile",
+                                Column(
                                     modifier = Modifier
-                                        .height(60.dp)
-                                        .width(60.dp)
-                                )
-                                Text(text = "Joshua Laude", fontWeight = FontWeight.Bold)
+                                        .height(80.dp)
+                                        .width(80.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    if(hasUserProfile.isNotEmpty()){
+                                        val ref : StorageReference = FirebaseStorage.getInstance().getReference(hasUserProfile)
+                                        var imageBitmap by remember { mutableStateOf<ImageBitmap?>(null) } //storage of image
+                                        LaunchedEffect(hasUserProfile) {
+                                            val ONE_MEGABYTE: Long = 1024 * 1024
+                                            try {
+                                                val bytes = ref.getBytes(ONE_MEGABYTE).await() //takes image location in firebase
+                                                val bitmap = BitmapFactory.decodeByteArray(
+                                                    bytes,
+                                                    0,
+                                                    bytes.size
+                                                ) // turn to image bits
+                                                imageBitmap = bitmap.asImageBitmap()
+                                            } catch (e: Exception) {
+                                                // Handle any errors
+                                            }
+                                        }
+
+                                        imageBitmap?.let { img ->
+                                            Image(
+                                                bitmap = img,
+                                                contentDescription = "Images",
+                                                modifier = Modifier
+                                                    .height(170.dp)
+                                                    .width(170.dp)
+                                                    .clip(CircleShape)
+                                            )
+                                        }
+                                    }
+                                    else{
+                                        Image(painter = painterResource(id = R.drawable.icons8_profile_picture_90),
+                                            contentDescription = "User profile mini image" ,
+                                            modifier = Modifier
+                                                .fillMaxSize()
+                                        )
+                                    }
+                                }
+                                Spacer(modifier = Modifier.width(5.dp))
+                                Text(text = "$posterName", fontWeight = FontWeight.Bold)
                             }
                             Spacer(modifier = Modifier.height(10.dp))
                             Row(
@@ -266,7 +318,7 @@ fun LandOwnerEditPost(navController : NavHostController, auth: FirebaseAuth, db 
                                     ),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Row(
+                                Row (
                                     modifier = Modifier
                                         .fillMaxSize(),
                                     verticalAlignment = Alignment.CenterVertically

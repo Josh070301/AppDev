@@ -64,6 +64,8 @@ fun WelcomeLandOwner(navController: NavHostController, auth: FirebaseAuth, db : 
         val anyID : Boolean= false,
         val available : Boolean= false,
         val price : String= "",
+        val userProfile : String= "",
+        val fullName : String= "",
         val selectImages : List<String> = emptyList(),
     )
     var warn by remember {
@@ -101,6 +103,8 @@ fun WelcomeLandOwner(navController: NavHostController, auth: FirebaseAuth, db : 
                         val anyID  = document.getBoolean("anyID") ?: false
                         val available  = document.getBoolean("available") ?:false
                         val price  = document.getString("price") ?: ""
+                        val userProfile = document.getString("UserProfile") ?:""
+                        val fullName = document.getString("fullName") ?:""
                         val selectImages = document.get("images") as? List<String> ?: emptyList()
 
 
@@ -117,6 +121,8 @@ fun WelcomeLandOwner(navController: NavHostController, auth: FirebaseAuth, db : 
                             anyID,
                             available,
                             price,
+                            userProfile,
+                            fullName,
                             selectImages,
                         )
                         posts.add(storagePost)
@@ -188,10 +194,11 @@ fun WelcomeLandOwner(navController: NavHostController, auth: FirebaseAuth, db : 
                             selectRoomTitle = data.selectRoomTitle,
                             uid = data.uid,
                             email = data.email,
+                            posterName = data.fullName,
+                            userProfile = data.userProfile
                         )
                     }
                         //Text(text = "${postLists[0].anyID}${postLists[0].available}${postLists[0].curfew}${postLists[0].selectImages}${postLists[0].location}${postLists[0].oneMonthAdvance}${postLists[0].oneMonthDeposit}${postLists[0].peopleCount}${postLists[0].price}${postLists[0].roomIncludes}${postLists[0].selectRoomTitle} ")
-                        Text(text = "$warn")
                     }
                 }
             }

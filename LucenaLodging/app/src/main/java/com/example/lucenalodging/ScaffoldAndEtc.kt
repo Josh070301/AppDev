@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.ButtonDefaults
@@ -267,6 +268,8 @@ fun userContent(navController: NavHostController,fullName : String, userType : S
                 selectRoomTitle : String,
                 email : String,
                 uid : String,
+                posterName : String,
+                userProfile : String
 ){
     var userName = ""
     if(userType == "LandOwner"){
@@ -297,11 +300,42 @@ fun userContent(navController: NavHostController,fullName : String, userType : S
                         .width(50.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ){
-                    Image(painter = painterResource(id = R.drawable.icons8_profile_picture_90),
-                        contentDescription = "User profile mini image" ,
-                        modifier = Modifier
-                            .fillMaxSize()
-                    )
+                    if(userProfile.isNotEmpty()){
+                        val ref : StorageReference = FirebaseStorage.getInstance().getReference(userProfile)
+                        var imageBitmap by remember { mutableStateOf<ImageBitmap?>(null) } //storage of image
+                        LaunchedEffect(userProfile) {
+                            val ONE_MEGABYTE: Long = 1024 * 1024
+                            try {
+                                val bytes = ref.getBytes(ONE_MEGABYTE).await() //takes image location in firebase
+                                val bitmap = BitmapFactory.decodeByteArray(
+                                    bytes,
+                                    0,
+                                    bytes.size
+                                ) // turn to image bits
+                                imageBitmap = bitmap.asImageBitmap()
+                            } catch (e: Exception) {
+                                // Handle any errors
+                            }
+                        }
+
+                        imageBitmap?.let { img ->
+                            Image(
+                                bitmap = img,
+                                contentDescription = "Images",
+                                modifier = Modifier
+                                    .height(150.dp)
+                                    .width(150.dp)
+                                    .clip(CircleShape)
+                            )
+                        }
+                    }
+                    else{
+                        Image(painter = painterResource(id = R.drawable.icons8_profile_picture_90),
+                            contentDescription = "User profile mini image" ,
+                            modifier = Modifier
+                                .fillMaxSize()
+                        )
+                    }
                 }
                 Spacer(modifier = Modifier.width(5.dp))
                 Text(text = "$fullName",
@@ -406,6 +440,7 @@ fun userContent(navController: NavHostController,fullName : String, userType : S
         }
     }
     else if(userType == "Tenants"){
+        Spacer(modifier = Modifier.height(10.dp))
         Column(
             modifier = Modifier
                 .height(400.dp)
@@ -432,14 +467,45 @@ fun userContent(navController: NavHostController,fullName : String, userType : S
                         .width(50.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ){
-                    Image(painter = painterResource(id = R.drawable.icons8_profile_picture_90),
-                        contentDescription = "User profile mini image" ,
-                        modifier = Modifier
-                            .fillMaxSize()
-                    )
+                    if(userProfile.isNotEmpty()){
+                        val ref : StorageReference = FirebaseStorage.getInstance().getReference(userProfile)
+                        var imageBitmap by remember { mutableStateOf<ImageBitmap?>(null) } //storage of image
+                        LaunchedEffect(userProfile) {
+                            val ONE_MEGABYTE: Long = 1024 * 1024
+                            try {
+                                val bytes = ref.getBytes(ONE_MEGABYTE).await() //takes image location in firebase
+                                val bitmap = BitmapFactory.decodeByteArray(
+                                    bytes,
+                                    0,
+                                    bytes.size
+                                ) // turn to image bits
+                                imageBitmap = bitmap.asImageBitmap()
+                            } catch (e: Exception) {
+                                // Handle any errors
+                            }
+                        }
+
+                        imageBitmap?.let { img ->
+                            Image(
+                                bitmap = img,
+                                contentDescription = "Images",
+                                modifier = Modifier
+                                    .height(150.dp)
+                                    .width(150.dp)
+                                    .clip(CircleShape)
+                            )
+                        }
+                    }
+                    else{
+                        Image(painter = painterResource(id = R.drawable.icons8_profile_picture_90),
+                            contentDescription = "User profile mini image" ,
+                            modifier = Modifier
+                                .fillMaxSize()
+                        )
+                    }
                 }
                 Spacer(modifier = Modifier.width(5.dp))
-                Text(text = "Land Owner Name",
+                Text(text = "$posterName",
                     fontStyle = FontStyle.Italic,
                     fontWeight = FontWeight.Bold
                 )
@@ -457,10 +523,34 @@ fun userContent(navController: NavHostController,fullName : String, userType : S
             ){
                 Row (
                     modifier = Modifier
-                        .fillMaxHeight(),
+                        .fillMaxSize(),
                     verticalAlignment = Alignment.CenterVertically
                 ){
-                    Text(text = "Images")
+                    for (pic in responseImages){
+                        val ref : StorageReference = FirebaseStorage.getInstance().getReference(pic)
+                        var imageBitmap by remember { mutableStateOf<ImageBitmap?>(null) } //storage of image
+
+                        LaunchedEffect(pic) {
+                            val ONE_MEGABYTE: Long = 1024 * 1024
+                            try {
+                                val bytes = ref.getBytes(ONE_MEGABYTE).await()
+                                val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size) // turn to image bits
+                                imageBitmap = bitmap.asImageBitmap()
+                            } catch (e: Exception) {
+                                // Handle any errors
+                            }
+                        }
+
+                        imageBitmap?.let { img ->
+                            Image(
+                                bitmap = img,
+                                contentDescription = "Images",
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .padding(8.dp),
+                            )
+                        }
+                    }
                 }
             }
             Spacer(modifier = Modifier.height(10.dp))
@@ -480,7 +570,7 @@ fun userContent(navController: NavHostController,fullName : String, userType : S
                         modifier = Modifier
                     ) {
                         Text(text = "Location", fontWeight = FontWeight.Bold)
-                        Text(text = "Purok Happy Valley Enverga Compound Brgy. Ibabang Dupay Lucena City")//soon description input
+                        Text(text = "$location")//soon description input
                     }
                 }
                 Spacer(modifier = Modifier.width(10.dp))
@@ -493,8 +583,8 @@ fun userContent(navController: NavHostController,fullName : String, userType : S
                     Column(
                         horizontalAlignment = Alignment.End
                     ) {
-                        Text(text = "Room for Rent", fontWeight = FontWeight.Bold) //soon to be input parameter from arguments
-                        Text(text = "3500PHP Monthly", fontWeight = FontWeight.Bold)
+                        Text(text = "$selectRoomTitle", fontWeight = FontWeight.Bold) //soon to be input parameter from arguments
+                        Text(text = "$price PHP Monthly", fontWeight = FontWeight.Bold)
                     }
                 }
             }
@@ -511,7 +601,7 @@ fun userContent(navController: NavHostController,fullName : String, userType : S
                 ){
                     OutlinedButton(
                         onClick = {
-                            navController.navigate("TenantSingleMessages?userName=$userName")
+                            navController.navigate("TenantSingleMessages")
                         },//soon navigates
                         colors = ButtonDefaults.buttonColors(containerColor = Color(color = 0xFFF2B398))
                     ) {
@@ -520,7 +610,7 @@ fun userContent(navController: NavHostController,fullName : String, userType : S
                     Spacer(modifier = Modifier.width(10.dp))
                     OutlinedButton(
                         onClick = {
-                            navController.navigate("TenantBrowseMore?userName=$userName")
+                            navController.navigate("TenantBrowseMore?documentID=$documentID")
                         },//soon navigates
                         colors = ButtonDefaults.buttonColors(containerColor = Color(color = 0xFFF2B398))
                     ) {
@@ -1504,7 +1594,7 @@ fun BottomMenu(navController: NavHostController,userName : String, usage:String,
                                 .fillMaxWidth()
                                 .clickable(
                                     onClick = {
-                                        navController.navigate("TenantBrowsePost?userName=$userName")
+                                        navController.navigate("TenantBrowsePost")
                                     }
                                 ),
                             horizontalAlignment = Alignment.CenterHorizontally
@@ -1531,7 +1621,7 @@ fun BottomMenu(navController: NavHostController,userName : String, usage:String,
                                 .fillMaxWidth()
                                 .clickable(
                                     onClick = {
-                                        navController.navigate("TenantMessages?userName=$userName")
+                                        navController.navigate("TenantMessages")
                                     }
                                 ),
                             horizontalAlignment = Alignment.CenterHorizontally
@@ -1558,7 +1648,7 @@ fun BottomMenu(navController: NavHostController,userName : String, usage:String,
                                 .fillMaxWidth()
                                 .clickable(
                                     onClick = {
-                                        navController.navigate("TenantSearch?userName=$userName")
+                                        navController.navigate("TenantSearch")
                                     }
                                 ),
                             horizontalAlignment = Alignment.CenterHorizontally
@@ -1585,7 +1675,7 @@ fun BottomMenu(navController: NavHostController,userName : String, usage:String,
                                 .fillMaxWidth()
                                 .clickable(
                                     onClick = {
-                                        navController.navigate("TenantUserProfile?userName=$userName")
+                                        navController.navigate("TenantUserProfile")
                                     }
                                 ),
                             horizontalAlignment = Alignment.CenterHorizontally
@@ -1687,7 +1777,7 @@ fun BottomMenu(navController: NavHostController,userName : String, usage:String,
                                 .fillMaxWidth()
                                 .clickable(
                                     onClick = {
-                                        navController.navigate("TenantBrowsePost?userName=$userName")
+                                        navController.navigate("TenantBrowsePost")
                                     }
                                 ),
                             horizontalAlignment = Alignment.CenterHorizontally
@@ -1715,7 +1805,7 @@ fun BottomMenu(navController: NavHostController,userName : String, usage:String,
                                 .fillMaxWidth()
                                 .clickable(
                                     onClick = {
-                                        navController.navigate("TenantMessages?userName=$userName")
+                                        navController.navigate("TenantMessages")
                                     }
                                 ),
                             horizontalAlignment = Alignment.CenterHorizontally
@@ -1742,7 +1832,7 @@ fun BottomMenu(navController: NavHostController,userName : String, usage:String,
                                 .fillMaxWidth()
                                 .clickable(
                                     onClick = {
-                                        navController.navigate("TenantSearch?userName=$userName")
+                                        navController.navigate("TenantSearch")
                                     }
                                 ),
                             horizontalAlignment = Alignment.CenterHorizontally
@@ -1769,7 +1859,7 @@ fun BottomMenu(navController: NavHostController,userName : String, usage:String,
                                 .fillMaxWidth()
                                 .clickable(
                                     onClick = {
-                                        navController.navigate("TenantUserProfile?userName=$userName")
+                                        navController.navigate("TenantUserProfile")
                                     }
                                 ),
                             horizontalAlignment = Alignment.CenterHorizontally
@@ -1871,7 +1961,7 @@ fun BottomMenu(navController: NavHostController,userName : String, usage:String,
                                 .fillMaxWidth()
                                 .clickable(
                                     onClick = {
-                                        navController.navigate("TenantBrowsePost?userName=$userName")
+                                        navController.navigate("TenantBrowsePost")
                                     }
                                 ),
                             horizontalAlignment = Alignment.CenterHorizontally
@@ -1898,7 +1988,7 @@ fun BottomMenu(navController: NavHostController,userName : String, usage:String,
                                 .fillMaxWidth()
                                 .clickable(
                                     onClick = {
-                                        navController.navigate("TenantMessages?userName=$userName")
+                                        navController.navigate("TenantMessages")
                                     }
                                 ),
                             horizontalAlignment = Alignment.CenterHorizontally
@@ -1926,7 +2016,7 @@ fun BottomMenu(navController: NavHostController,userName : String, usage:String,
                                 .fillMaxWidth()
                                 .clickable(
                                     onClick = {
-                                        navController.navigate("TenantSearch?userName=$userName")
+                                        navController.navigate("TenantSearch")
                                     }
                                 ),
                             horizontalAlignment = Alignment.CenterHorizontally
@@ -1953,7 +2043,7 @@ fun BottomMenu(navController: NavHostController,userName : String, usage:String,
                                 .fillMaxWidth()
                                 .clickable(
                                     onClick = {
-                                        navController.navigate("TenantUserProfile?userName=$userName")
+                                        navController.navigate("TenantUserProfile")
                                     }
                                 ),
                             horizontalAlignment = Alignment.CenterHorizontally
@@ -2055,7 +2145,7 @@ fun BottomMenu(navController: NavHostController,userName : String, usage:String,
                                 .fillMaxWidth()
                                 .clickable(
                                     onClick = {
-                                        navController.navigate("TenantBrowsePost?email=$userName")
+                                        navController.navigate("TenantBrowsePost")
                                     }
                                 ),
                             horizontalAlignment = Alignment.CenterHorizontally
@@ -2082,7 +2172,7 @@ fun BottomMenu(navController: NavHostController,userName : String, usage:String,
                                 .fillMaxWidth()
                                 .clickable(
                                     onClick = {
-                                        navController.navigate("TenantMessages?userName=$userName")
+                                        navController.navigate("TenantMessages")
                                     }
                                 ),
                             horizontalAlignment = Alignment.CenterHorizontally
@@ -2109,7 +2199,7 @@ fun BottomMenu(navController: NavHostController,userName : String, usage:String,
                                 .fillMaxWidth()
                                 .clickable(
                                     onClick = {
-                                        navController.navigate("TenantSearch?userName=$userName")
+                                        navController.navigate("TenantSearch")
                                     }
                                 ),
                             horizontalAlignment = Alignment.CenterHorizontally
@@ -2137,7 +2227,7 @@ fun BottomMenu(navController: NavHostController,userName : String, usage:String,
                                 .fillMaxWidth()
                                 .clickable(
                                     onClick = {
-                                        navController.navigate("TenantUserProfile?userName=$userName")
+                                        navController.navigate("TenantUserProfile")
                                     }
                                 ),
                             horizontalAlignment = Alignment.CenterHorizontally
@@ -2239,7 +2329,7 @@ fun BottomMenu(navController: NavHostController,userName : String, usage:String,
                                 .fillMaxWidth()
                                 .clickable(
                                     onClick = {
-                                        navController.navigate("TenantBrowsePost?userName=$userName")
+                                        navController.navigate("TenantBrowsePost")
                                     }
                                 ),
                             horizontalAlignment = Alignment.CenterHorizontally
@@ -2266,7 +2356,7 @@ fun BottomMenu(navController: NavHostController,userName : String, usage:String,
                                 .fillMaxWidth()
                                 .clickable(
                                     onClick = {
-                                        navController.navigate("TenantMessages?userName=$userName")
+                                        navController.navigate("TenantMessages")
                                     }
                                 ),
                             horizontalAlignment = Alignment.CenterHorizontally
@@ -2293,7 +2383,7 @@ fun BottomMenu(navController: NavHostController,userName : String, usage:String,
                                 .fillMaxWidth()
                                 .clickable(
                                     onClick = {
-                                        navController.navigate("TenantSearch?userName=$userName")
+                                        navController.navigate("TenantSearch")
                                     }
                                 ),
                             horizontalAlignment = Alignment.CenterHorizontally
@@ -2320,7 +2410,7 @@ fun BottomMenu(navController: NavHostController,userName : String, usage:String,
                                 .fillMaxWidth()
                                 .clickable(
                                     onClick = {
-                                        navController.navigate("TenantUserProfile?userName=$userName")
+                                        navController.navigate("TenantUserProfile")
                                     }
                                 ),
                             horizontalAlignment = Alignment.CenterHorizontally

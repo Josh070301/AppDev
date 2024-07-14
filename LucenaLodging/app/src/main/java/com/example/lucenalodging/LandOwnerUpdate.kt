@@ -639,14 +639,6 @@ fun LandOwnerUpdate(navController: NavHostController, auth : FirebaseAuth, db :F
                                     ) {
                                         Text(text = "Delete", color = Color.Black)
                                     }
-                                    Column(
-                                        modifier = Modifier
-                                            .height(20.dp)
-                                            .fillMaxWidth(),
-                                        horizontalAlignment = Alignment.CenterHorizontally
-                                    ) {
-                                        Text(text = "Note: creating another post is recommended to change photo")
-                                    }
                                     for (x in posts){
                                         val toDeleteImages = x.selectImages
                                         if (deleteDialog){
@@ -663,6 +655,14 @@ fun LandOwnerUpdate(navController: NavHostController, auth : FirebaseAuth, db :F
                                             )
                                         }
                                     }
+                                }
+                                Column(
+                                    modifier = Modifier
+                                        .height(20.dp)
+                                        .fillMaxWidth(),
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    Text(text = "Note: creating another post is recommended to change photo")
                                 }
                             }
                         }

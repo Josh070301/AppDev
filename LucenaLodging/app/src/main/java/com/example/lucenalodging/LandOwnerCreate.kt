@@ -116,6 +116,9 @@ fun LandOwnerCreate(navController: NavHostController, auth: FirebaseAuth, db : F
     var email by remember{
         mutableStateOf("")
     }
+    var userProfile by remember{
+        mutableStateOf("")
+    }
     val uid = auth.currentUser?.uid //currentUserID
     if (uid != null){
         db.collection("Users").document(uid)
@@ -124,6 +127,9 @@ fun LandOwnerCreate(navController: NavHostController, auth: FirebaseAuth, db : F
                 if (document != null){
                     fullName = document.getString("fullName").toString()
                     email = document.getString("email").toString()
+                    if (document.getString("UserProfile") != null){
+                        userProfile = document.getString("UserProfile").toString()
+                    }
                 }
             }
     }
@@ -547,6 +553,8 @@ fun LandOwnerCreate(navController: NavHostController, auth: FirebaseAuth, db : F
                                                 x++
                                             }
                                             val userMap = hashMapOf(
+                                                "UserProfile" to userProfile,
+                                                "fullName" to fullName,
                                                 "email" to email,
                                                 "uid" to uid,
                                                 "roomTitle" to selectRoomTitle,
