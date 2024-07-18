@@ -66,6 +66,7 @@ import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import java.util.Date
 import java.util.Locale
 
 //codes of tenant UI and functionalities are here unlike land owner which are separated
@@ -115,6 +116,7 @@ fun WelcomeTenant(navController: NavHostController, auth: FirebaseAuth, db: Fire
                 }
             }
         db.collection("LandLordPost")
+            .orderBy("timestamp")
             .get()
             .addOnSuccessListener { doc ->
                 posts.clear() // clears the current list to avoid duplication
@@ -270,7 +272,7 @@ fun TenantSingleMessages(navController: NavHostController, auth: FirebaseAuth, d
         mutableStateOf("")
     }
     var totalMessages = remember {
-        mutableListOf<Message>() //data class
+        mutableStateListOf<Message>() //data class
     }
     if (uid != null) {
         db.collection("Users").document(uid)
@@ -296,6 +298,7 @@ fun TenantSingleMessages(navController: NavHostController, auth: FirebaseAuth, d
                 warn = "Error getting data"
             }
     }
+
     if (landLordUID.isNotEmpty()) {
         db.collection("Messages").document(uid + landLordUID)
             .collection("chats").orderBy("timestamp").get()
@@ -305,8 +308,10 @@ fun TenantSingleMessages(navController: NavHostController, auth: FirebaseAuth, d
                     val sender = document.getString("sender") ?: ""
                     val recipient = document.getString("recipient") ?: ""
                     val message = document.getString("message") ?: ""
-                    val timestamp = document.getLong("timestamp")
-                    val timeStampString = timestamp?.toString() ?:""
+                    val timestamp = document.getLong("timestamp")?:0
+                    val timeStampToDate = Date(timestamp)
+                    val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+                    val timeStampString = sdf.format(timeStampToDate)
 
                     val storagePost = Message(sender, recipient, message, timeStampString)
                     totalMessages.add(storagePost)
@@ -324,7 +329,7 @@ fun TenantSingleMessages(navController: NavHostController, auth: FirebaseAuth, d
         mutableStateOf("")
     }
     var chatInputMaxChar = 180
-    val scrollState = rememberScrollState()
+    val scrollState = rememberScrollState() //used for scrolling at end
     val coroutineScope = rememberCoroutineScope()
     Surface (
         modifier = Modifier
@@ -630,18 +635,23 @@ fun TenantSingleMessages(navController: NavHostController, auth: FirebaseAuth, d
                                     modifier = Modifier
                                         .clickable(
                                             onClick = {
-                                                val chatId = (uid + landLordUID)//will be used vice versa for when landlord messages to store on same document
-                                                val messageData = mapOf(
-                                                    "sender" to uid,
-                                                    "recipient" to landLordUID,
-                                                    "message" to chatInput,
-                                                    "timestamp" to System.currentTimeMillis()) //Long value
-                                                db.collection("Messages").document(chatId)
-                                                    .collection("chats") //create another collection for storing messageData
-                                                    .add(messageData)
-                                                    .addOnSuccessListener {
-                                                        chatInput = ""
-                                                    }
+                                                if(chatInput.isNotEmpty()){
+                                                    val chatId = (uid + landLordUID)//will be used vice versa for when landlord messages to store on same document
+                                                    val messageData = mapOf(
+                                                        "sender" to uid,
+                                                        "recipient" to landLordUID,
+                                                        "message" to chatInput,
+                                                        "tenantID" to uid,
+                                                        "landlordID" to landLordUID,
+                                                        "timestamp" to System.currentTimeMillis()) //Long value
+                                                    db.collection("Messages").document(chatId)
+                                                        .collection("chats") //create another collection for storing messageData
+                                                        .add(messageData)
+                                                        .addOnSuccessListener {
+                                                            chatInput = ""
+                                                            navController.navigate("TenantSingleMessages?landLordUID=$landLordUID")
+                                                        }
+                                                }
                                             }
                                         )
                                 )
@@ -660,14 +670,52 @@ fun TenantMessages(navController: NavHostController, auth: FirebaseAuth, db: Fir
     var fullName by remember {
         mutableStateOf("")
     }
+    data class LandLordUID(
+        val landLordUID: String = ""
+    )
+    var conversationList by remember {
+        mutableStateOf(mutableListOf<LandLordUID>())
+    }
+
     if (uid != null) {
-        db.collection("Users").document(uid)
-            .get()
-            .addOnSuccessListener { document ->
-                if (document != null) {
-                    fullName = document.getString("fullName").toString()
+        LaunchedEffect(uid) {
+            // Fetch full name from Firestore
+            db.collection("Users").document(uid)
+                .get()
+                .addOnSuccessListener { document ->
+                    fullName = document.getString("fullName") ?: ""
                 }
-            }
+                .addOnFailureListener { exception ->
+                    Log.e("TAG", "Error getting document: ", exception)
+                }
+        }
+
+        LaunchedEffect(uid) {
+            // Fetch chats from collection group
+            db.collectionGroup("chats")
+                .get()
+                .addOnSuccessListener { querySnapshot ->
+                    val tempConversationList = mutableListOf<LandLordUID>()
+
+                    for (document in querySnapshot.documents) {
+                        if (document.getString("tenantID") == uid) {
+                            val landLordUID = document.getString("landlordID") ?: ""
+
+                            // Check if landLordUID is not already in tempConversationList
+                            if (!tempConversationList.any { it.landLordUID == landLordUID }) {
+
+                                tempConversationList.add(LandLordUID(landLordUID))
+                            }
+                        }
+                    }
+
+                    // Update conversationList state
+                    conversationList = tempConversationList.toMutableList()
+                }
+                .addOnFailureListener { exception ->
+                    Log.e("TAG", "Error getting documents: ", exception)
+                }
+        }
     }
     Surface (
         modifier = Modifier
@@ -719,26 +767,14 @@ fun TenantMessages(navController: NavHostController, auth: FirebaseAuth, db: Fir
                     }
                     Column (
                         modifier = Modifier
-                            .height(70.dp)
-                            .fillMaxWidth(),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ){
-                        Row (
-                            modifier = Modifier
-                                .fillMaxHeight(),
-                            verticalAlignment = Alignment.CenterVertically
-                        ){
-                            SearchBar(navController, fullName, userType = "Tenant") //in ScaffoldAndEtc.kt
-                        }
-                    }
-                    Column (
-                        modifier = Modifier
                             .fillMaxSize()
                             .verticalScroll(rememberScrollState())
                     ){
-                        repeat(10){
-                            messagesContent(navController, fullName, userType = "Tenants")//in ScaffoldAndEtc.kt
+                        for(x in conversationList){
+                            messagesContent(navController,auth, db, x.landLordUID, userType = "Tenants")//in ScaffoldAndEtc.kt
                         }
+
+
                     }
                 }
             }
@@ -750,6 +786,9 @@ fun TenantMessages(navController: NavHostController, auth: FirebaseAuth, db: Fir
 fun TenantBrowseMore(navController : NavHostController, auth: FirebaseAuth, db: FirebaseFirestore, documentID : String){
     val uid = auth.currentUser?.uid
     var fullName by remember{
+        mutableStateOf("")
+    }
+    var landLordUID by remember{
         mutableStateOf("")
     }
     data class Post(
@@ -794,6 +833,7 @@ fun TenantBrowseMore(navController : NavHostController, auth: FirebaseAuth, db: 
                 if (document != null) {
                     val documentId = document.id
                     val uid = document.getString("uid") ?: ""
+                    landLordUID = document.getString("uid") ?:""
                     val email = document.getString("email") ?: ""
                     val selectRoomTitle = document.getString("roomTitle") ?: ""
                     val location = document.getString("location") ?: ""
@@ -1117,7 +1157,7 @@ fun TenantBrowseMore(navController : NavHostController, auth: FirebaseAuth, db: 
                                     ){
                                         OutlinedButton(
                                             onClick = {
-                                                navController.navigate("TenantSingleMessages")
+                                                navController.navigate("TenantSingleMessages?landLordUID=$landLordUID")
                                             },
                                             modifier = Modifier
                                                 .width(150.dp),
@@ -1136,214 +1176,6 @@ fun TenantBrowseMore(navController : NavHostController, auth: FirebaseAuth, db: 
     }
 }
 
-@Composable
-fun SearchPost(navController: NavHostController, auth: FirebaseAuth, db: FirebaseFirestore){
-    val uid = auth.currentUser?.uid
-    var fullName by remember {
-        mutableStateOf("")
-    }
-    if (uid != null) {
-        db.collection("Users").document(uid)
-            .get()
-            .addOnSuccessListener { document ->
-                if (document != null) {
-                    fullName = document.getString("fullName").toString()
-                }
-            }
-    }
-    Surface (
-        modifier = Modifier
-            .fillMaxSize(),
-        color = Color(color = 0xFFFDF7E4)
-    ) {
-        BottomMenu(navController,fullName, usage = "Search", userType = "Tenants")//scaffold on ScaffoldAndEtc.kt
-        Row ( // Column for the surface
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(start = 5.dp, bottom = 125.dp, end = 5.dp, top = 70.dp) //padding in top and bottom bar
-
-        ) {
-            Column( //column for the surface
-                modifier = Modifier
-                    .fillMaxSize()
-                    .clip(RoundedCornerShape(10.dp))
-                    .border(
-                        width = 1.dp,
-                        color = Color.Gray,
-                        shape = RoundedCornerShape(10.dp)
-                    )
-                    .background(Color(color = 0xFFF8E4BF))
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                ) {
-                    Row (
-                        modifier = Modifier
-                            .height(70.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ){
-                        Column (
-                            modifier = Modifier
-                                .padding(start = 20.dp, end = 20.dp)
-                                .fillMaxWidth(),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ){
-                            Text(
-                                text = "Search A Post",
-                                fontSize = 25.sp,
-                                fontWeight = FontWeight.Bold,
-                                modifier = Modifier
-                                    .padding(top = 10.dp),
-                            )
-                            MainSpacer()// at ScaffoldAndEtc.kt
-                        }
-                    }
-                    Column (
-                        modifier = Modifier
-                            .height(70.dp)
-                            .fillMaxWidth(),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ){
-                        Row (
-                            modifier = Modifier
-                                .fillMaxHeight(),
-                            verticalAlignment = Alignment.CenterVertically
-                        ){
-                            SearchBar(navController, fullName, userType = "Tenants") //in ScaffoldAndEtc.kt
-                        }
-                    }
-                    Column (
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .verticalScroll(rememberScrollState())
-                    ){
-
-                    }
-                }
-            }
-        }
-    }
-}
-//@Composable
-/*fun TenantProfile(navController: NavHostController, auth : FirebaseAuth, db : FirebaseFirestore){
-    val uid = auth.currentUser?.uid
-    var fullName by remember {
-        mutableStateOf("")
-    }
-    if (uid != null) {
-        db.collection("Users").document(uid)
-            .get()
-            .addOnSuccessListener { document ->
-                if (document != null) {
-                    fullName = document.getString("fullName").toString()
-                }
-            }
-    }
-    Surface (
-        modifier = Modifier
-            .fillMaxSize(),
-        color = Color(color = 0xFFFDF7E4)
-    ) {
-        BottomMenu(navController,fullName, usage = "User Profile", userType = "Tenants")//scaffold on ScaffoldAndEtc.kt
-        Row ( // Column for the surface
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(start = 5.dp, bottom = 125.dp, end = 5.dp, top = 70.dp) //padding in top and bottom bar
-
-        ) {
-            Column( //column for the surface
-                modifier = Modifier
-                    .fillMaxSize()
-                    .clip(RoundedCornerShape(10.dp))
-                    .border(
-                        width = 1.dp,
-                        color = Color.Gray,
-                        shape = RoundedCornerShape(10.dp)
-                    )
-                    .background(Color(color = 0xFFF8E4BF))
-            ){
-                Row (
-                    modifier = Modifier
-                        .height(300.dp),
-                    verticalAlignment = Alignment.Top
-                ){
-                    Column (
-                        modifier = Modifier
-                            .padding(start = 20.dp, end = 20.dp, top = 20.dp)
-                            .fillMaxWidth(),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ){
-                        Text(
-                            text = "User Profile",
-                            fontSize = 25.sp,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier
-                                .padding(top = 10.dp),
-                        )
-                        MainSpacer()// at ScaffoldAndEtc.kt
-                        Text(
-                            text = "Tenant",
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier
-                                .padding(top = 10.dp),
-                        )
-                        Image(painter = painterResource(id = R.drawable.icons8_profile_picture_90),
-                            contentDescription = "Profile picture",
-                            modifier = Modifier
-                                .height(150.dp)
-                                .width(150.dp)
-                        )
-                        Row (
-                            modifier = Modifier
-                                .padding(start = 40.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ){
-                            Text(
-                                text = "Joshua Laude",
-                                fontSize = 18.sp,
-                                fontWeight = FontWeight.Bold,
-                                modifier = Modifier
-                                    .padding(top = 10.dp),
-                            )
-                            Spacer(modifier = Modifier.width(10.dp))
-                            Image(painter = painterResource(id = R.drawable.icons8_create_100),
-                                contentDescription = "Edit Icon",
-                                modifier = Modifier
-                                    .height(30.dp)
-                                    .width(30.dp)
-                            )
-                        }
-                        Spacer(modifier = Modifier.height(10.dp))
-                        MainSpacer()// at ScaffoldAndEtc.kt
-                        Spacer(modifier = Modifier.height(10.dp))
-                    }
-                }
-                Column (
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(start = 30.dp, top = 20.dp)
-                ){
-                    Column (
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                        horizontalAlignment = Alignment.Start
-                    ){
-                        Row (
-                            modifier = Modifier
-                                .height(30.dp)
-                        ){
-                            Text(text = "Email: ", fontWeight = FontWeight.Bold) //soon parameters arguments
-                            Text(text = "joshualaude03333@gmail.com")
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-*/
 @Composable
 fun TenantProfile(navController: NavHostController, auth :FirebaseAuth, db : FirebaseFirestore){
     val uid = auth.currentUser?.uid
@@ -1919,7 +1751,7 @@ fun TenantChangePassword(navController: NavHostController, auth: FirebaseAuth, d
         mutableStateOf("")
     }
     if (uid != null){
-        db.collection("LandLords").document(uid)
+        db.collection("Users").document(uid)
             .get()
             .addOnSuccessListener { document ->
                 if (document != null){

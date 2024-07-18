@@ -1,5 +1,6 @@
 package com.example.lucenalodging
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -21,6 +22,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -42,18 +44,55 @@ import com.google.firebase.firestore.FirebaseFirestore
 @Composable
 fun LandOwnerMessages(navController: NavHostController, auth: FirebaseAuth, db : FirebaseFirestore){
     val uid = auth.currentUser?.uid
-    var fullName by remember{
+    var fullName by remember {
         mutableStateOf("")
     }
-    if (uid != null){
-        db.collection("LandLords").document(uid)
-            .get()
-            .addOnSuccessListener { document ->
-                if (document != null){
-                    val FullNameFromDB = document.getString("fullName")
-                    fullName = FullNameFromDB.toString()
+    data class tenantUID(
+        val tenantUID: String = ""
+    )
+    var conversationList by remember {
+        mutableStateOf(mutableListOf<tenantUID>())
+    }
+
+    if (uid != null) {
+        LaunchedEffect(uid) {
+            // Fetch full name from Firestore
+            db.collection("Users").document(uid)
+                .get()
+                .addOnSuccessListener { document ->
+                    fullName = document.getString("fullName") ?: ""
                 }
-            }
+                .addOnFailureListener { exception ->
+                    Log.e("TAG", "Error getting document: ", exception)
+                }
+        }
+
+        LaunchedEffect(uid) {
+            // Fetch chats from collection group
+            db.collectionGroup("chats")
+                .get()
+                .addOnSuccessListener { querySnapshot ->
+                    val tempConversationList = mutableListOf<tenantUID>()
+
+                    for (document in querySnapshot.documents) {
+                        if (document.getString("landlordID") == uid) {
+                            val tenantUID = document.getString("tenantID") ?: ""
+
+                            // Check if landLordUID is not already in tempConversationList
+                            if (!tempConversationList.any { it.tenantUID == tenantUID }) {
+
+                                tempConversationList.add(tenantUID(tenantUID))
+                            }
+                        }
+                    }
+
+                    // Update conversationList state
+                    conversationList = tempConversationList.toMutableList()
+                }
+                .addOnFailureListener { exception ->
+                    Log.e("TAG", "Error getting documents: ", exception)
+                }
+        }
     }
     Surface (
         modifier = Modifier
@@ -105,26 +144,13 @@ fun LandOwnerMessages(navController: NavHostController, auth: FirebaseAuth, db :
                     }
                     Column (
                         modifier = Modifier
-                            .height(70.dp)
-                            .fillMaxWidth(),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ){
-                        Row (
-                            modifier = Modifier
-                                .fillMaxHeight(),
-                            verticalAlignment = Alignment.CenterVertically
-                        ){
-                            SearchBar(navController, fullName, userType = "LandOwner") //in ScaffoldAndEtc.kt
-                        }
-                    }
-                    Column (
-                        modifier = Modifier
                             .fillMaxSize()
                             .verticalScroll(rememberScrollState())
                     ){
-                        repeat(10){
-                            messagesContent(navController, fullName, userType = "LandOwner")//in ScaffoldAndEtc.kt
+                        for(x in conversationList){
+                            messagesContent(navController,auth, db, x.tenantUID, userType = "LandOwner")//in ScaffoldAndEtc.kt
                         }
+
 
                     }
                 }

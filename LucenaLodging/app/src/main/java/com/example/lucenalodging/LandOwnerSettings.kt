@@ -39,7 +39,7 @@ fun LandOwnerSettings(navController: NavHostController, auth: FirebaseAuth, db :
         mutableStateOf("")
     }
     if (uid != null){
-        db.collection("LandLords").document(uid)
+        db.collection("Users").document(uid)
             .get()
             .addOnSuccessListener { document ->
                 if (document != null){

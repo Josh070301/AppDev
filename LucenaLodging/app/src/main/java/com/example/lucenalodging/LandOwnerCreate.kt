@@ -138,7 +138,7 @@ fun LandOwnerCreate(navController: NavHostController, auth: FirebaseAuth, db : F
             .fillMaxSize(),
         color = Color(color = 0xFFFDF7E4)
     ) {
-        BottomMenu(navController,email, usage = "Post", userType = "LandOwner")//scaffold on ScaffoldAndEtc.kt
+        BottomMenu(navController,fullName, usage = "Post", userType = "LandOwner")//scaffold on ScaffoldAndEtc.kt
         Row ( // Column for the surface
             modifier = Modifier
                 .fillMaxSize()
@@ -568,6 +568,7 @@ fun LandOwnerCreate(navController: NavHostController, auth: FirebaseAuth, db : F
                                                 "available" to available,
                                                 "price" to price,
                                                 "images" to randomImageID,
+                                                "timestamp" to System.currentTimeMillis() //Long value
                                             )
                                             db.collection("LandLordPost")
                                                 .add(userMap)

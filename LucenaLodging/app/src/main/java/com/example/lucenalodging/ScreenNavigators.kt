@@ -98,8 +98,17 @@ fun AppNavigator(auth: FirebaseAuth, db : FirebaseFirestore){
         composable(route = "LandOwnerDelete"){
             LandOwnerDelete(navController, auth, db)
         }
-        composable(route = "LandOwnerSingleMessages"){
-            LandOwnerSingleMessages(navController, auth, db)
+        composable(route = "LandOwnerSingleMessages?tenantUID={uid}",
+            arguments = listOf(
+                navArgument(
+                    name = "uid"
+                ){
+                    type = NavType.StringType
+                }
+            )
+            ){backstackentry ->
+            LandOwnerSingleMessages(navController, auth, db,
+                tenantUID = backstackentry.arguments?.getString("uid") ?:"")
         }
         composable(route = "LandOwnerCreatedPost"){
             LandOwnerCreatedPost(navController, auth, db)
@@ -161,9 +170,6 @@ fun AppNavigator(auth: FirebaseAuth, db : FirebaseFirestore){
         }
         composable(route = "TenantMessages"){
             TenantMessages(navController,auth,db)
-        }
-        composable(route = "TenantSearch"){
-            SearchPost(navController, auth, db)
         }
         composable(route = "TenantUserProfile") {
             TenantProfile(navController,auth, db)

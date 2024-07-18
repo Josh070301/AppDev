@@ -596,7 +596,7 @@ fun LandOwnerUpdate(navController: NavHostController, auth : FirebaseAuth, db :F
                             Column (
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(60.dp),
+                                    .height(100.dp),
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ){
                                 Row (
@@ -658,7 +658,7 @@ fun LandOwnerUpdate(navController: NavHostController, auth : FirebaseAuth, db :F
                                 }
                                 Column(
                                     modifier = Modifier
-                                        .height(20.dp)
+                                        .height(50.dp)
                                         .fillMaxWidth(),
                                     horizontalAlignment = Alignment.CenterHorizontally
                                 ) {

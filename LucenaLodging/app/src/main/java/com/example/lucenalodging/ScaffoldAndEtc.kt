@@ -48,6 +48,8 @@ import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberAsyncImagePainter
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import kotlinx.coroutines.tasks.await
@@ -91,59 +93,6 @@ fun BackImage(navController: NavHostController, backTo:String){
     )
 }
 @Composable
-fun SearchBar(navController: NavHostController, fullName: String, userType: String){
-    if (userType == "Tenants"){
-        var searchInput by remember {
-            mutableStateOf("")
-        }
-        OutlinedTextField(
-            modifier = Modifier
-                .height(50.dp)
-                .width(280.dp)
-                .padding(end = 10.dp),
-            colors = TextFieldDefaults.colors( //removes extra background color of label in this outlinedTextField
-                unfocusedContainerColor = Color.White
-            ),
-            shape = RoundedCornerShape(30.dp),
-            value = searchInput,
-            onValueChange = {searchInput = it},
-            placeholder = {Text(text = "Search", fontSize = 14.sp)},
-            leadingIcon = { Image(painter = painterResource(id = R.drawable.icons8_search_64),
-                contentDescription ="Search",
-                modifier = Modifier
-                    .height(30.dp)
-                    .width(30.dp)
-            ) },
-        )
-    }
-    else{
-        var searchInput by remember {
-            mutableStateOf("")
-        }
-        OutlinedTextField(
-            modifier = Modifier
-                .height(50.dp)
-                .width(280.dp)
-                .padding(end = 10.dp),
-            colors = TextFieldDefaults.colors( //removes extra background color of label in this outlinedTextField
-                unfocusedContainerColor = Color.White
-            ),
-            shape = RoundedCornerShape(30.dp),
-            value = searchInput,
-            onValueChange = {searchInput = it},
-            placeholder = {Text(text = "Search Names", fontSize = 14.sp)},
-            leadingIcon = { Image(painter = painterResource(id = R.drawable.icons8_search_64),
-                contentDescription ="Search",
-                modifier = Modifier
-                    .height(30.dp)
-                    .width(30.dp)
-            ) },
-        )
-    }
-
-}
-
-@Composable
 fun MainSpacer(){
     Spacer(
         modifier = Modifier
@@ -155,13 +104,38 @@ fun MainSpacer(){
 }
 
 @Composable
-fun messagesContent(navController: NavHostController, fullName: String , userType: String){ //soon uses parameters for api calls
+fun messagesContent(navController: NavHostController, auth: FirebaseAuth, db : FirebaseFirestore, inputID: String , userType: String){ //soon uses parameters for api calls
+    var warn by remember{
+        mutableStateOf("")
+    }
+    var userProfile by remember{
+        mutableStateOf("")
+    }
+    var userFullName by remember{
+        mutableStateOf("")
+    }
+    db.collection("Users").document(inputID)//gets the poster ID/LandLord ID
+        .get()
+        .addOnSuccessListener { doc ->
+            if (doc != null) {
+                userProfile = doc.getString("UserProfile") ?: ""
+                userFullName = doc.getString("fullName") ?: ""
+            }
+            else{
+                warn = "Start Messaging"
+            }
+
+        }
+        .addOnFailureListener { e->
+            warn = "Error getting data"
+        }
     if(userType =="LandOwner"){
+
         Column(
             modifier = Modifier
                 .clickable(
                     onClick = {
-                        navController.navigate("LandOwnerSingleMessages")
+                        navController.navigate("LandOwnerSingleMessages?tenantUID=$inputID")
                     }
                 )
                 .height(70.dp)
@@ -174,17 +148,48 @@ fun messagesContent(navController: NavHostController, fullName: String , userTyp
                     .fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ){
-                Image(painter = painterResource(id = R.drawable.icons8_profile_picture_90),
-                    contentDescription ="Profile Picture",
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        .width(70.dp))
+                if(userProfile.isNotEmpty()){
+                    val ref : StorageReference = FirebaseStorage.getInstance().getReference(userProfile)
+                    var imageBitmap by remember { mutableStateOf<ImageBitmap?>(null) } //storage of image
+                    LaunchedEffect(userProfile) {
+                        val ONE_MEGABYTE: Long = 1024 * 1024
+                        try {
+                            val bytes = ref.getBytes(ONE_MEGABYTE).await() //takes image location in firebase
+                            val bitmap = BitmapFactory.decodeByteArray(
+                                bytes,
+                                0,
+                                bytes.size
+                            ) // turn to image bits
+                            imageBitmap = bitmap.asImageBitmap()
+                        } catch (e: Exception) {
+                            // Handle any errors
+                        }
+                    }
+
+                    imageBitmap?.let { img -> //UI of image
+                        Image(
+                            bitmap = img,
+                            contentDescription = "Profile Picture",
+                            modifier = Modifier
+                                .fillMaxHeight()
+                                .width(70.dp)
+                                .clip(CircleShape)
+                        )
+                    }
+                }
+                else{
+                    Image(painter = painterResource(id = R.drawable.icons8_profile_picture_90),
+                        contentDescription = "User profile mini image" ,
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .width(70.dp)
+                    )
+                }
                 Column (
                     modifier = Modifier
                         .width(230.dp)
                 ){
-                    Text(text = "Tenant Name", fontWeight = FontWeight.Bold)
-                    Text(text = "Messaged You...", fontSize = 12.sp, modifier = Modifier.padding(start = 2.dp))
+                    Text(text = "$userFullName", fontWeight = FontWeight.Bold)
                 }
                 Column(
                     modifier = Modifier
@@ -196,7 +201,6 @@ fun messagesContent(navController: NavHostController, fullName: String , userTyp
                             .fillMaxHeight(),
                         verticalAlignment = Alignment.Bottom
                     ){
-                        Text(text = "2:00PM", fontSize = 10.sp)
                     }
                 }
             }
@@ -204,11 +208,12 @@ fun messagesContent(navController: NavHostController, fullName: String , userTyp
         Spacer(modifier = Modifier.height(5.dp))
     }
     else if(userType =="Tenants"){
+
         Column(
             modifier = Modifier
                 .clickable(
                     onClick = {
-                        navController.navigate("TenantSingleMessages")
+                        navController.navigate("TenantSingleMessages?landLordUID=$inputID")
                     }
                 )
                 .height(70.dp)
@@ -221,17 +226,48 @@ fun messagesContent(navController: NavHostController, fullName: String , userTyp
                     .fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ){
-                Image(painter = painterResource(id = R.drawable.icons8_profile_picture_90),
-                    contentDescription ="Profile Picture",
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        .width(70.dp))
+                if(userProfile.isNotEmpty()){
+                    val ref : StorageReference = FirebaseStorage.getInstance().getReference(userProfile)
+                    var imageBitmap by remember { mutableStateOf<ImageBitmap?>(null) } //storage of image
+                    LaunchedEffect(userProfile) {
+                        val ONE_MEGABYTE: Long = 1024 * 1024
+                        try {
+                            val bytes = ref.getBytes(ONE_MEGABYTE).await() //takes image location in firebase
+                            val bitmap = BitmapFactory.decodeByteArray(
+                                bytes,
+                                0,
+                                bytes.size
+                            ) // turn to image bits
+                            imageBitmap = bitmap.asImageBitmap()
+                        } catch (e: Exception) {
+                            // Handle any errors
+                        }
+                    }
+
+                    imageBitmap?.let { img -> //UI of image
+                        Image(
+                            bitmap = img,
+                            contentDescription = "Profile Picture",
+                            modifier = Modifier
+                                .fillMaxHeight()
+                                .width(70.dp)
+                                .clip(CircleShape)
+                        )
+                    }
+                }
+                else{
+                    Image(painter = painterResource(id = R.drawable.icons8_profile_picture_90),
+                        contentDescription = "User profile mini image" ,
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .width(70.dp)
+                    )
+                }
                 Column (
                     modifier = Modifier
                         .width(230.dp)
                 ){
-                    Text(text = "Land Owner Name", fontWeight = FontWeight.Bold)
-                    Text(text = "Messaged You...", fontSize = 12.sp, modifier = Modifier.padding(start = 2.dp))
+                    Text(text = "$userFullName", fontWeight = FontWeight.Bold)
                 }
                 Column(
                     modifier = Modifier
@@ -243,7 +279,6 @@ fun messagesContent(navController: NavHostController, fullName: String , userTyp
                             .fillMaxHeight(),
                         verticalAlignment = Alignment.Bottom
                     ){
-                        Text(text = "2:00PM", fontSize = 10.sp)
                     }
                 }
             }
@@ -1648,33 +1683,6 @@ fun BottomMenu(navController: NavHostController,userName : String, usage:String,
                                 .fillMaxWidth()
                                 .clickable(
                                     onClick = {
-                                        navController.navigate("TenantSearch")
-                                    }
-                                ),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Image(
-                                painter = painterResource(id = R.drawable.icons8_search_64),
-                                contentDescription = "Search",
-                                modifier = Modifier
-                                    .height(40.dp)
-                                    .width(35.dp)
-                            )
-                            Text(text = "Search", fontSize = 11.sp)
-                        }
-                    }
-                    Row(
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxWidth()
-                            .fillMaxHeight(), //responsive
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable(
-                                    onClick = {
                                         navController.navigate("TenantUserProfile")
                                     }
                                 ),
@@ -1818,217 +1826,6 @@ fun BottomMenu(navController: NavHostController,userName : String, usage:String,
                                     .width(35.dp)
                             )
                             Text(text = "Messages", fontSize = 11.sp)
-                        }
-                    }
-                    Row(
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxWidth()
-                            .fillMaxHeight(), //responsive
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable(
-                                    onClick = {
-                                        navController.navigate("TenantSearch")
-                                    }
-                                ),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Image(
-                                painter = painterResource(id = R.drawable.icons8_search_64),
-                                contentDescription = "Search",
-                                modifier = Modifier
-                                    .height(40.dp)
-                                    .width(35.dp)
-                            )
-                            Text(text = "Search", fontSize = 11.sp)
-                        }
-                    }
-                    Row(
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxWidth()
-                            .fillMaxHeight(), //responsive
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable(
-                                    onClick = {
-                                        navController.navigate("TenantUserProfile")
-                                    }
-                                ),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Image(
-                                painter = painterResource(id = R.drawable.icons8_admin_settings_male_64),
-                                contentDescription = "User Profile",
-                                modifier = Modifier
-                                    .height(40.dp)
-                                    .width(35.dp)
-                            )
-                            Text(text = "User Profile", fontSize = 11.sp)
-                        }
-                    }
-                    Row(
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxWidth()
-                            .fillMaxHeight(), //responsive
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable(
-                                    onClick = {
-                                        navController.navigate("TenantSettings")
-                                    }
-                                ),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Image(
-                                painter = painterResource(id = R.drawable.icons8_settings_250),
-                                contentDescription = "Settings",
-                                modifier = Modifier
-                                    .height(40.dp)
-                                    .width(35.dp)
-                            )
-                            Text(text = "Settings", fontSize = 11.sp)
-                        }
-                    }
-                }
-            }
-        ) { innerPadding ->
-            Column(
-                modifier = Modifier
-                    .padding(innerPadding),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-            ) {
-
-            }
-        }
-    }
-    else if (usage == "Search" && userType == "Tenants"){
-        Scaffold(
-            topBar = {
-                Column (modifier = Modifier
-                    .fillMaxSize()
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(60.dp)
-                            .clip(RoundedCornerShape(bottomStart = 10.dp)) // 1 side of the border
-                            .clip(RoundedCornerShape(bottomEnd = 10.dp))
-                            .background(Color(color = 0xFFC2997C)), // color a column or row using background
-                    ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxSize(),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(start = 10.dp),
-                                horizontalAlignment = Alignment.Start
-                            ) {
-                                Text(text = "Hello, Tenant $userName")
-                            }
-                        }
-                    }
-                    Spacer(modifier = Modifier.height(10.dp))
-                }
-            },
-            bottomBar = {
-                BottomAppBar(
-                    containerColor = Color(color = 0xFFF8E4BF)
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxWidth()
-                            .fillMaxHeight(), //responsive
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable(
-                                    onClick = {
-                                        navController.navigate("TenantBrowsePost")
-                                    }
-                                ),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Image(
-                                painter = painterResource(id = R.drawable.browse_post),
-                                contentDescription = "Browse",
-                                modifier = Modifier
-                                    .height(40.dp)
-                                    .width(35.dp)
-                            )
-                            Text(text = "Browse Post", fontSize = 11.sp)
-                        }
-                    }
-                    Row(
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxWidth()
-                            .fillMaxHeight(), //responsive
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable(
-                                    onClick = {
-                                        navController.navigate("TenantMessages")
-                                    }
-                                ),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Image(
-                                painter = painterResource(id = R.drawable.icons8_messages_250),
-                                contentDescription = "Messages",
-                                modifier = Modifier
-                                    .height(40.dp)
-                                    .width(35.dp)
-                            )
-                            Text(text = "Messages", fontSize = 11.sp)
-                        }
-                    }
-                    Row(
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxWidth()
-                            .background(color = Color(color = 0xFFE7CEBC))
-                            .fillMaxHeight(), //responsive
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable(
-                                    onClick = {
-                                        navController.navigate("TenantSearch")
-                                    }
-                                ),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Image(
-                                painter = painterResource(id = R.drawable.icons8_search_64),
-                                contentDescription = "Search",
-                                modifier = Modifier
-                                    .height(40.dp)
-                                    .width(35.dp)
-                            )
-                            Text(text = "Search", fontSize = 11.sp)
                         }
                     }
                     Row(
@@ -2191,33 +1988,6 @@ fun BottomMenu(navController: NavHostController,userName : String, usage:String,
                         modifier = Modifier
                             .weight(1f)
                             .fillMaxWidth()
-                            .fillMaxHeight(), //responsive
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable(
-                                    onClick = {
-                                        navController.navigate("TenantSearch")
-                                    }
-                                ),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Image(
-                                painter = painterResource(id = R.drawable.icons8_search_64),
-                                contentDescription = "Search",
-                                modifier = Modifier
-                                    .height(40.dp)
-                                    .width(35.dp)
-                            )
-                            Text(text = "Search", fontSize = 11.sp)
-                        }
-                    }
-                    Row(
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxWidth()
                             .background(color = Color(color = 0xFFE7CEBC))
                             .fillMaxHeight(), //responsive
                         verticalAlignment = Alignment.CenterVertically
@@ -2369,33 +2139,6 @@ fun BottomMenu(navController: NavHostController,userName : String, usage:String,
                                     .width(35.dp)
                             )
                             Text(text = "Messages", fontSize = 11.sp)
-                        }
-                    }
-                    Row(
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxWidth()
-                            .fillMaxHeight(), //responsive
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable(
-                                    onClick = {
-                                        navController.navigate("TenantSearch")
-                                    }
-                                ),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Image(
-                                painter = painterResource(id = R.drawable.icons8_search_64),
-                                contentDescription = "Search",
-                                modifier = Modifier
-                                    .height(40.dp)
-                                    .width(35.dp)
-                            )
-                            Text(text = "Search", fontSize = 11.sp)
                         }
                     }
                     Row(

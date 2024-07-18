@@ -51,7 +51,7 @@ fun LandOwnerChangePassword(navController: NavHostController, auth: FirebaseAuth
         mutableStateOf("")
     }
     if (uid != null){
-        db.collection("LandLords").document(uid)
+        db.collection("Users").document(uid)
             .get()
             .addOnSuccessListener { document ->
                 if (document != null){
@@ -195,7 +195,7 @@ fun LandOwnerConfirmedPassword(navController: NavHostController, auth: FirebaseA
         mutableStateOf("")
     }
     if (uid != null){
-        db.collection("LandLords").document(uid)
+        db.collection("Users").document(uid)
             .get()
             .addOnSuccessListener { document ->
                 if (document != null){

@@ -67,6 +67,9 @@ dependencies {
     implementation("com.google.firebase:firebase-firestore")
     implementation("io.coil-kt:coil-compose:2.4.0") // take images from local url
     implementation("com.google.firebase:firebase-storage")
+
+    implementation ("com.google.firebase:firebase-appcheck:16.1.0")
+    implementation ("com.google.firebase:firebase-appcheck-safetynet:16.1.0")
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
