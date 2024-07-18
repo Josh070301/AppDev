@@ -148,8 +148,16 @@ fun AppNavigator(auth: FirebaseAuth, db : FirebaseFirestore){
             TenantBrowseMore(navController, auth, db,
                 documentID = backstackentry.arguments?.getString("documentID") ?:"")
         }
-        composable(route = "TenantSingleMessages"){
-            TenantSingleMessages(navController, auth, db)
+        composable(route = "TenantSingleMessages?landLordUID={uid}",
+            arguments = listOf(
+                navArgument(
+                    name = "uid"
+                ){
+                    type = NavType.StringType
+                }
+            )){backstackentry ->
+            TenantSingleMessages(navController, auth, db,
+                landLordUID = backstackentry.arguments?.getString("uid") ?:"")
         }
         composable(route = "TenantMessages"){
             TenantMessages(navController,auth,db)

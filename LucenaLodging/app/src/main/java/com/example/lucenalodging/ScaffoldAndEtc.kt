@@ -601,7 +601,7 @@ fun userContent(navController: NavHostController,fullName : String, userType : S
                 ){
                     OutlinedButton(
                         onClick = {
-                            navController.navigate("TenantSingleMessages")
+                            navController.navigate("TenantSingleMessages?landLordUID=$uid")
                         },//soon navigates
                         colors = ButtonDefaults.buttonColors(containerColor = Color(color = 0xFFF2B398))
                     ) {

@@ -1,7 +1,9 @@
 package com.example.lucenalodging
 
 import android.graphics.BitmapFactory
+import android.icu.text.SimpleDateFormat
 import android.net.Uri
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -15,9 +17,11 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -33,8 +37,10 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -48,6 +54,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.max
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
@@ -57,7 +64,9 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import java.util.Locale
 
 //codes of tenant UI and functionalities are here unlike land owner which are separated
 @Composable
@@ -240,10 +249,28 @@ fun WelcomeTenant(navController: NavHostController, auth: FirebaseAuth, db: Fire
     }
 }
 @Composable
-fun TenantSingleMessages(navController: NavHostController, auth: FirebaseAuth, db: FirebaseFirestore){
+fun TenantSingleMessages(navController: NavHostController, auth: FirebaseAuth, db: FirebaseFirestore, landLordUID : String){
+    data class Message(
+        val sender: String = "",
+        val recipient: String = "",
+        val message: String = "",
+        val timestamp: String = ""
+    )
     val uid = auth.currentUser?.uid
     var fullName by remember {
         mutableStateOf("")
+    }
+    var warn by remember{
+        mutableStateOf("")
+    }
+    var landLordProfile by remember{
+        mutableStateOf("")
+    }
+    var landLordFullName by remember{
+        mutableStateOf("")
+    }
+    var totalMessages = remember {
+        mutableListOf<Message>() //data class
     }
     if (uid != null) {
         db.collection("Users").document(uid)
@@ -253,11 +280,52 @@ fun TenantSingleMessages(navController: NavHostController, auth: FirebaseAuth, d
                     fullName = document.getString("fullName").toString()
                 }
             }
+        db.collection("Users").document(landLordUID)//gets the poster ID/LandLord ID
+            .get()
+            .addOnSuccessListener { doc ->
+                if (doc != null) {
+                    landLordProfile = doc.getString("UserProfile") ?: ""
+                    landLordFullName = doc.getString("fullName") ?: ""
+                }
+                else{
+                    warn = "Start Messaging"
+                }
+
+            }
+            .addOnFailureListener { e->
+                warn = "Error getting data"
+            }
+    }
+    if (landLordUID.isNotEmpty()) {
+        db.collection("Messages").document(uid + landLordUID)
+            .collection("chats").orderBy("timestamp").get()
+            .addOnSuccessListener { doc ->
+                totalMessages.clear()
+                for (document in doc) {
+                    val sender = document.getString("sender") ?: ""
+                    val recipient = document.getString("recipient") ?: ""
+                    val message = document.getString("message") ?: ""
+                    val timestamp = document.getLong("timestamp")
+                    val timeStampString = timestamp?.toString() ?:""
+
+                    val storagePost = Message(sender, recipient, message, timeStampString)
+                    totalMessages.add(storagePost)
+                    //Log.e("Total Messages", "Sender : $sender \nrecipient : $recipient \nmessage : $message")
+                }
+            }
+            .addOnFailureListener { e ->
+                warn = "Error getting data: ${e.message}"
+                Log.e("FirebaseError", "Error getting data", e)
+            }
+    } else {
+        warn = "Invalid LandLordUID"
     }
     var chatInput by remember {
         mutableStateOf("")
     }
     var chatInputMaxChar = 180
+    val scrollState = rememberScrollState()
+    val coroutineScope = rememberCoroutineScope()
     Surface (
         modifier = Modifier
             .fillMaxSize(),
@@ -298,20 +366,53 @@ fun TenantSingleMessages(navController: NavHostController, auth: FirebaseAuth, d
                     Row (
                         modifier = Modifier
                             .weight(1f),
+
                         verticalAlignment = Alignment.CenterVertically
                     ){
                         BackImage(navController = navController, backTo = "TenantMessages")
                         Spacer(modifier = Modifier.width(20.dp))
-                        Image(painter = painterResource(id = R.drawable.icons8_profile_picture_90),
-                            contentDescription ="Profile Picture",
-                            modifier = Modifier
-                                .fillMaxHeight()
-                                .width(70.dp))
+                        if(landLordProfile.isNotEmpty()){
+                            val ref : StorageReference = FirebaseStorage.getInstance().getReference(landLordProfile)
+                            var imageBitmap by remember { mutableStateOf<ImageBitmap?>(null) } //storage of image
+                            LaunchedEffect(landLordProfile) {
+                                val ONE_MEGABYTE: Long = 1024 * 1024
+                                try {
+                                    val bytes = ref.getBytes(ONE_MEGABYTE).await() //takes image location in firebase
+                                    val bitmap = BitmapFactory.decodeByteArray(
+                                        bytes,
+                                        0,
+                                        bytes.size
+                                    ) // turn to image bits
+                                    imageBitmap = bitmap.asImageBitmap()
+                                } catch (e: Exception) {
+                                    // Handle any errors
+                                }
+                            }
+
+                            imageBitmap?.let { img -> //UI of image
+                                Image(
+                                    bitmap = img,
+                                    contentDescription = "Profile Picture",
+                                    modifier = Modifier
+                                        .fillMaxHeight()
+                                        .width(70.dp)
+                                        .clip(CircleShape)
+                                )
+                            }
+                        }
+                        else{
+                            Image(painter = painterResource(id = R.drawable.icons8_profile_picture_90),
+                                contentDescription = "User profile mini image" ,
+                                modifier = Modifier
+                                    .fillMaxHeight()
+                                    .width(70.dp)
+                            )
+                        }
                         Column (
                             modifier = Modifier
                                 .width(230.dp)
                         ){
-                            Text(text = "Land Owner Name", fontWeight = FontWeight.Bold)
+                            Text(text = "$landLordFullName", fontWeight = FontWeight.Bold)
                         }
                     }
                     MainSpacer()
@@ -324,95 +425,162 @@ fun TenantSingleMessages(navController: NavHostController, auth: FirebaseAuth, d
                     ){
                         Column (
                             modifier = Modifier
-                                .fillMaxWidth()
+                                .fillMaxSize()
                         ){
-                            Column (
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(60.dp),
-                            ){
-                                Row (
+                            if(totalMessages != null){
+                                Column (
                                     modifier = Modifier
-                                        .fillMaxHeight(),
+                                        .fillMaxSize()
+                                        .verticalScroll(state = scrollState) //scrolls at end of loop
                                 ){
-                                    Column (
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(end = 20.dp)
-                                            .padding(start = 15.dp),
-                                        horizontalAlignment = Alignment.End
-                                    ){
-                                        Row (
-                                            modifier = Modifier
-                                                .width(150.dp)
-                                                .fillMaxHeight()
-                                                .background(
-                                                    color = Color(color = 0xFFE7B898),
-                                                    shape = RoundedCornerShape(10.dp)
-                                                )
-                                                .padding(start = 15.dp),
-                                            verticalAlignment = Alignment.CenterVertically
-                                        ){
-                                            Text(text = "Hello",)
-                                            Column (
+                                    for (data in totalMessages){ //messages and conditions
+                                        val stringTimeStamp = data.timestamp.toString()
+                                        val messageLength = data.message.length
+                                        //Log.e("Message Length", "$messageLength")
+                                        if (data.sender == uid){
+                                            //Log.e("Which ran", "User is Sender")
+                                            Spacer(modifier = Modifier.height(20.dp))
+                                            Column ( //rows for messages
                                                 modifier = Modifier
-                                                    .fillMaxWidth(),
+                                                    .fillMaxWidth()
+                                                    .heightIn(
+                                                        min = 60.dp,
+                                                        max = (messageLength * 10).dp
+                                                    ),
                                                 horizontalAlignment = Alignment.End
                                             ){
                                                 Row (
                                                     modifier = Modifier
-                                                        .fillMaxHeight()
-                                                        .padding(bottom = 5.dp, end = 5.dp),
-                                                    verticalAlignment = Alignment.Bottom
+                                                        .weight(1f)
+                                                        .padding(5.dp),
                                                 ){
-                                                    Text(text = "2:01PM", fontSize = 10.sp)
+                                                    Column (
+                                                        modifier = Modifier
+                                                            .fillMaxWidth()
+                                                            .padding(end = 20.dp)
+                                                            .padding(start = 15.dp),
+                                                        horizontalAlignment = Alignment.End
+                                                    ){
+                                                        Row (
+                                                            modifier = Modifier
+                                                                .fillMaxHeight()
+                                                                .background(
+                                                                    color = Color(color = 0xFFE7B898),
+                                                                    shape = RoundedCornerShape(10.dp)
+                                                                )
+                                                                .padding(start = 15.dp),
+                                                            verticalAlignment = Alignment.CenterVertically
+                                                        ){
+                                                            Text(text = data.message)
+                                                            Column (
+                                                                modifier = Modifier
+                                                                    .fillMaxWidth(),
+                                                                horizontalAlignment = Alignment.End
+                                                            ){
+                                                                Row (
+                                                                    modifier = Modifier
+                                                                        .fillMaxHeight()
+                                                                        .padding(
+                                                                            bottom = 5.dp,
+                                                                            end = 5.dp
+                                                                        ),
+                                                                    verticalAlignment = Alignment.Bottom
+                                                                ){
+                                                                    Text(text = stringTimeStamp, fontSize = 10.sp)
+                                                                }
+                                                            }
+                                                        }
+
+                                                    }
                                                 }
                                             }
                                         }
+                                        else if (data.sender == landLordUID){
+                                            //Log.e("Which ran", "Landlord is Sender ${data.sender}")
+                                            Spacer(modifier = Modifier.height(20.dp))
+                                            Row ( //rows for messages
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .height(60.dp),
+                                                verticalAlignment = Alignment.CenterVertically
+                                            ){
+                                                if(landLordProfile.isNotEmpty()){
+                                                    val ref : StorageReference = FirebaseStorage.getInstance().getReference(landLordProfile)
+                                                    var imageBitmap by remember { mutableStateOf<ImageBitmap?>(null) } //storage of image
+                                                    LaunchedEffect(landLordProfile) {
+                                                        val ONE_MEGABYTE: Long = 1024 * 1024
+                                                        try {
+                                                            val bytes = ref.getBytes(ONE_MEGABYTE).await() //takes image location in firebase
+                                                            val bitmap = BitmapFactory.decodeByteArray(
+                                                                bytes,
+                                                                0,
+                                                                bytes.size
+                                                            ) // turn to image bits
+                                                            imageBitmap = bitmap.asImageBitmap()
+                                                        } catch (e: Exception) {
+                                                            // Handle any errors
+                                                        }
+                                                    }
 
+                                                    imageBitmap?.let { img -> //UI of image
+                                                        Image(
+                                                            bitmap = img,
+                                                            contentDescription = "Profile Picture",
+                                                            modifier = Modifier
+                                                                .fillMaxHeight()
+                                                                .width(70.dp)
+                                                                .clip(CircleShape)
+                                                        )
+                                                    }
+                                                }
+                                                else{
+                                                    Image(painter = painterResource(id = R.drawable.icons8_profile_picture_90),
+                                                        contentDescription = "User profile mini image" ,
+                                                        modifier = Modifier
+                                                            .fillMaxHeight()
+                                                            .width(70.dp)
+                                                    )
+                                                }
+                                                Row (
+                                                    modifier = Modifier
+                                                        .weight(1f)
+                                                        .fillMaxHeight()
+                                                        .background(
+                                                            color = Color(color = 0xFFE7B898),
+                                                            shape = RoundedCornerShape(10.dp)
+                                                        )
+                                                        .padding(start = 15.dp),
+                                                    verticalAlignment = Alignment.CenterVertically
+                                                ){
+                                                    Text(text = data.message,)
+                                                    Column (
+                                                        modifier = Modifier
+                                                            .fillMaxWidth(),
+                                                        horizontalAlignment = Alignment.End
+                                                    ){
+                                                        Row (
+                                                            modifier = Modifier
+                                                                .fillMaxHeight()
+                                                                .padding(bottom = 5.dp, end = 5.dp),
+                                                            verticalAlignment = Alignment.Bottom
+                                                        ){
+                                                            Text(text = stringTimeStamp, fontSize = 10.sp)
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
                                     }
-                                }
-                            }
-                            Spacer(modifier = Modifier.height(20.dp))
-                            Row (
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(60.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ){
-                                Image(painter = painterResource(id = R.drawable.icons8_profile_picture_90),
-                                    contentDescription ="Profile Picture",
-                                    modifier = Modifier
-                                        .width(70.dp)
-                                        .fillMaxHeight()
-                                )
-                                Row (
-                                    modifier = Modifier
-                                        .width(150.dp)
-                                        .fillMaxHeight()
-                                        .background(
-                                            color = Color(color = 0xFFE7B898),
-                                            shape = RoundedCornerShape(10.dp)
-                                        )
-                                        .padding(start = 15.dp),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ){
-                                    Text(text = "Hello",)
-                                    Column (
-                                        modifier = Modifier
-                                            .fillMaxWidth(),
-                                        horizontalAlignment = Alignment.End
-                                    ){
-                                        Row (
-                                            modifier = Modifier
-                                                .fillMaxHeight()
-                                                .padding(bottom = 5.dp, end = 5.dp),
-                                            verticalAlignment = Alignment.Bottom
-                                        ){
-                                            Text(text = "2:00PM", fontSize = 10.sp)
+                                        // Scroll to the bottom (most recent message)
+                                    LaunchedEffect(totalMessages.size) {
+                                        coroutineScope.launch {
+                                            scrollState.animateScrollTo(scrollState.maxValue)
                                         }
                                     }
                                 }
+                            }
+                            else{
+                                Text(text = "Start Messaging")
                             }
 
                         }
@@ -458,7 +626,25 @@ fun TenantSingleMessages(navController: NavHostController, auth: FirebaseAuth, d
 
                             ){
                                 Image(painter = painterResource(id = R.drawable.icons8_send_96),
-                                    contentDescription = "Send Icon")
+                                    contentDescription = "Send Icon",
+                                    modifier = Modifier
+                                        .clickable(
+                                            onClick = {
+                                                val chatId = (uid + landLordUID)//will be used vice versa for when landlord messages to store on same document
+                                                val messageData = mapOf(
+                                                    "sender" to uid,
+                                                    "recipient" to landLordUID,
+                                                    "message" to chatInput,
+                                                    "timestamp" to System.currentTimeMillis()) //Long value
+                                                db.collection("Messages").document(chatId)
+                                                    .collection("chats") //create another collection for storing messageData
+                                                    .add(messageData)
+                                                    .addOnSuccessListener {
+                                                        chatInput = ""
+                                                    }
+                                            }
+                                        )
+                                )
                             }
                         }
                     }
@@ -467,7 +653,6 @@ fun TenantSingleMessages(navController: NavHostController, auth: FirebaseAuth, d
         }
     }
 }
-
 
 @Composable
 fun TenantMessages(navController: NavHostController, auth: FirebaseAuth, db: FirebaseFirestore){

@@ -136,7 +136,7 @@ fun globalResetPassword(navController: NavHostController, auth: FirebaseAuth, db
                                     Column (modifier = Modifier
                                         .fillMaxWidth(),
                                         horizontalAlignment = Alignment.CenterHorizontally){
-                                        Text(text = "$warn", color = Color.Red)
+                                        Text(text = "$warn", color = Color.Green)
                                     }
                                 }
                                 Spacer(modifier = Modifier.height(50.dp))
